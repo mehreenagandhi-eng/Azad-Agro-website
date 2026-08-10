@@ -43,16 +43,16 @@ export function ProductCard({
 
       {qty > 0 ? (
         <div style={s.cardQtyRow}>
-          <button type="button" style={s.qtyBtn} onClick={() => onSetQty?.(p, qty - 1)} aria-label="Decrease quantity">
+          <button type="button" style={s.qtyBtn} onClick={() => onSetQty?.(p.id, qty - 1)} aria-label="Decrease quantity">
             −
           </button>
           <span style={s.qtyVal}>{qty}</span>
-          <button type="button" style={s.qtyBtn} onClick={() => onSetQty?.(p, qty + 1)} aria-label="Increase quantity">
+          <button type="button" style={s.qtyBtn} onClick={() => onSetQty?.(p.id, qty + 1)} aria-label="Increase quantity">
             +
           </button>
         </div>
       ) : (
-        <button type="button" style={s.addBtn} onClick={() => onAdd?.(p)}>
+        <button type="button" style={s.addBtn} onClick={() => onAdd?.(p.id)}>
           {isAdmin ? (
             <EditableText
               id="txt20"
