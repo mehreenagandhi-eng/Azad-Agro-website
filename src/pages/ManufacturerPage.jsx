@@ -1,0 +1,398 @@
+import React, { useMemo, useState } from "react";
+import { s } from "../styles";
+import { Icon } from "../components/Icon";
+import { EditableText, EditableList } from "../components/EditableText";
+import { ProductCard } from "../components/ProductCard";
+import { CoverPhotoBlock } from "../components/CoverPhotoBlock";
+import { RemovableSection, isSectionVisible } from "../components/RemovableSection";
+const TABS = [
+  { id: "order", labelKey: "orderNowLabel", fallback: "Order Now" },
+  { id: "story", labelKey: "ourStoryLabel", fallback: "Our Story" },
+  { id: "contact", labelKey: "contactInfoLabel", fallback: "Contact Information" },
+];
+
+export function ManufacturerPage({
+  manufacturer,
+  marketplace,
+  theme,
+  isAdmin = false,
+  isOwner = false,
+  tab = "order",
+  onTabChange,
+  onBack,
+  onApprove,
+  onDeny,
+  onUpdateManufacturer,
+  onToggleSectionVisible,
+  cart = {},
+  onAddToCart,
+  onSetCartQty,
+  onAddProduct,
+  onEditProduct,
+  onDeleteProduct,
+  onEditCopy,
+}) {
+  const copy = marketplace.copy || {};
+  const [category, setCategory] = useState(copy.allCategoryLabel || "All");
+
+  const setMfg = (field, value) => {
+    if (onUpdateManufacturer) onUpdateManufacturer({ ...manufacturer, [field]: value });
+  };
+
+  const products = manufacturer.products || [];
+  const categories = useMemo(() => {
+    const cats = [...new Set(products.map((p) => p.cat).filter(Boolean))];
+    return [copy.allCategoryLabel || "All", ...cats];
+  }, [products, copy.allCategoryLabel]);
+
+  const allLabel = copy.allCategoryLabel || "All";
+  const filtered = category === allLabel ? products : products.filter((p) => p.cat === category);
+  const featured = products.filter((p) => p.featured);
+
+  const showReviewBanner =
+    (isOwner || isAdmin) &&
+    (manufacturer.status === "pending" || manufacturer.status === "rejected");
+
+  const reviewText =
+    manufacturer.status === "rejected"
+      ? copy.rejectedBannerText
+      : copy.reviewBannerText;
+
+  const sectionVisible = (id) => isSectionVisible(theme, id);
+
+  return (
+    <>
+      {onBack && (
+        <div style={s.backBar}>
+          <button type="button" style={s.backLinkInBar} onClick={onBack}>
+            ← Back to directory
+          </button>
+        </div>
+      )}
+
+      <header style={s.pageBanner}>
+        <div style={s.pageBannerInner}>
+          {showReviewBanner && (
+            <div style={s.reviewBanner}>
+              {reviewText}
+              {manufacturer.status === "pending" && isOwner && (
+                <div style={s.mfgReviewRow}>
+                  <button type="button" style={s.approveBtn} onClick={() => onApprove?.(manufacturer.id)}>
+                    {copy.approveLabel || "Approve"}
+                  </button>
+                  <button type="button" style={s.denyBtn} onClick={() => onDeny?.(manufacturer.id)}>
+                    {copy.denyLabel || "Deny"}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div style={s.mfgHeroGrid}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 12 }}>
+                <div style={s.mfgCardLogoWrap}>
+                  {manufacturer.logo ? (
+                    <img src={manufacturer.logo} alt="" style={s.mfgCardLogo} />
+                  ) : (
+                    <div style={s.mfgCardLogoFallback}>
+                      <Icon name="leaf" size={30} />
+                    </div>
+                  )}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <EditableText
+                    isAdmin={isAdmin}
+                    value={manufacturer.name}
+                    onSave={(v) => setMfg("name", v)}
+                    textStyle={s.pageHeading}
+                  />
+                  <EditableText
+                    isAdmin={isAdmin}
+                    value={manufacturer.tagline}
+                    onSave={(v) => setMfg("tagline", v)}
+                    textStyle={s.pageIntro}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <CoverPhotoBlock
+              photo={manufacturer.coverPhoto}
+              caption={manufacturer.coverCaption}
+              onPhotoChange={(v) => setMfg("coverPhoto", v)}
+              onCaptionChange={(v) => setMfg("coverCaption", v)}
+              isAdmin={isAdmin}
+              placeholder="Upload a cover photo for this manufacturer"
+            />
+          </div>
+        </div>
+      </header>
+
+      <nav style={s.mfgSubNav} aria-label="Manufacturer sections">
+        <div style={s.mfgSubNavInner}>
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              style={{
+                ...s.mfgSubNavPill,
+                ...(tab === t.id ? s.mfgSubNavPillActive : {}),
+              }}
+              onClick={() => onTabChange?.(t.id)}
+            >
+              {copy[t.labelKey] || t.fallback}
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      <div style={s.pageBody}>
+        {tab === "story" && (
+          <>
+            <RemovableSection
+              sectionId="mfgStory"
+              theme={theme}
+              isAdmin={isAdmin}
+              label={copy.ourStoryLabel || "Our Story"}
+              onToggleVisible={onToggleSectionVisible}
+            >
+              {sectionVisible("mfgStory") && (
+                <>
+                  <h2 style={s.pageSubheading}>{copy.ourStoryLabel || "Our Story"}</h2>
+                  <EditableText
+                    isAdmin={isAdmin}
+                    value={manufacturer.story}
+                    onSave={(v) => setMfg("story", v)}
+                    textStyle={s.pageParagraph}
+                    multiline
+                  />
+                </>
+              )}
+            </RemovableSection>
+
+            <RemovableSection
+              sectionId="mfgMission"
+              theme={theme}
+              isAdmin={isAdmin}
+              label={copy.missionHeading || "Our mission"}
+              onToggleVisible={onToggleSectionVisible}
+            >
+              {sectionVisible("mfgMission") && (
+                <>
+                  <h2 style={s.pageSubheading}>{copy.missionHeading || "Our mission"}</h2>
+                  <EditableText
+                    isAdmin={isAdmin}
+                    value={manufacturer.mission}
+                    onSave={(v) => setMfg("mission", v)}
+                    textStyle={s.pageParagraph}
+                    multiline
+                  />
+                </>
+              )}
+            </RemovableSection>
+
+            <RemovableSection
+              sectionId="mfgValues"
+              theme={theme}
+              isAdmin={isAdmin}
+              label={copy.valuesHeading || "What we hold ourselves to"}
+              onToggleVisible={onToggleSectionVisible}
+            >
+              {sectionVisible("mfgValues") && (
+                <>
+                  <h2 style={s.pageSubheading}>{copy.valuesHeading || "What we hold ourselves to"}</h2>
+                  <EditableList
+                    isAdmin={isAdmin}
+                    items={manufacturer.values || []}
+                    onChange={(items) => setMfg("values", items)}
+                  />
+                </>
+              )}
+            </RemovableSection>
+
+            <RemovableSection
+              sectionId="mfgPractices"
+              theme={theme}
+              isAdmin={isAdmin}
+              label={copy.practicesHeading || "How we grow"}
+              onToggleVisible={onToggleSectionVisible}
+            >
+              {sectionVisible("mfgPractices") && (
+                <>
+                  <h2 style={s.pageSubheading}>{copy.practicesHeading || "How we grow"}</h2>
+                  <EditableText
+                    isAdmin={isAdmin}
+                    value={manufacturer.practicesIntro}
+                    onSave={(v) => setMfg("practicesIntro", v)}
+                    textStyle={s.pageParagraph}
+                    multiline
+                  />
+                  <EditableList
+                    isAdmin={isAdmin}
+                    items={manufacturer.practicesPoints || []}
+                    onChange={(items) => setMfg("practicesPoints", items)}
+                  />
+                </>
+              )}
+            </RemovableSection>
+
+            <RemovableSection
+              sectionId="mfgCert"
+              theme={theme}
+              isAdmin={isAdmin}
+              label={copy.certHeading || "Certifications"}
+              onToggleVisible={onToggleSectionVisible}
+            >
+              {sectionVisible("mfgCert") && (
+                <>
+                  <h2 style={s.pageSubheading}>{copy.certHeading || "Certifications"}</h2>
+                  <EditableText
+                    isAdmin={isAdmin}
+                    value={manufacturer.certIntro}
+                    onSave={(v) => setMfg("certIntro", v)}
+                    textStyle={s.pageParagraph}
+                    multiline
+                  />
+                  <EditableList
+                    isAdmin={isAdmin}
+                    items={manufacturer.certBadges || []}
+                    onChange={(items) => setMfg("certBadges", items)}
+                    variant="badge"
+                    addLabel="+ Add badge"
+                  />
+                </>
+              )}
+            </RemovableSection>
+          </>
+        )}
+
+        {tab === "contact" && (
+          <section>
+            <h2 style={s.pageSubheading}>{copy.contactHeading || "Contact & delivery"}</h2>
+            <div style={s.contactGrid}>
+              <div style={s.contactDetailsCard}>
+                <div style={s.contactRow}>
+                  <Icon name="leaf" size={20} />
+                  <EditableText
+                    isAdmin={isAdmin}
+                    value={manufacturer.contactEmail}
+                    onSave={(v) => setMfg("contactEmail", v)}
+                    textStyle={s.contactText}
+                  />
+                </div>
+                <div style={s.contactRow}>
+                  <Icon name="pod" size={20} />
+                  <EditableText
+                    isAdmin={isAdmin}
+                    value={manufacturer.contactPhone}
+                    onSave={(v) => setMfg("contactPhone", v)}
+                    textStyle={s.contactText}
+                  />
+                </div>
+                <div style={s.contactRow}>
+                  <Icon name="grain" size={20} />
+                  <EditableText
+                    isAdmin={isAdmin}
+                    value={manufacturer.contactAddress}
+                    onSave={(v) => setMfg("contactAddress", v)}
+                    textStyle={s.contactText}
+                    multiline
+                  />
+                </div>
+              </div>
+              <div style={s.contactFormCard}>
+                <h3 style={s.sectionTitle}>Delivery</h3>
+                <EditableText
+                  isAdmin={isAdmin}
+                  value={manufacturer.deliveryInfo}
+                  onSave={(v) => setMfg("deliveryInfo", v)}
+                  textStyle={s.contactText}
+                  multiline
+                />
+              </div>
+            </div>
+          </section>
+        )}
+
+        {tab === "order" && (
+          <>
+            <h2 style={s.pageSubheading}>{copy.shopHeading || "Shop this manufacturer"}</h2>
+
+            <nav style={s.quickNav} aria-label="Product categories">
+              <div style={s.quickNavInner}>
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    style={{
+                      ...s.quickNavPill,
+                      ...(category === cat ? s.quickNavPillActive : {}),
+                    }}
+                    onClick={() => setCategory(cat)}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </nav>
+
+            {featured.length > 0 && category === allLabel && (
+              <section style={s.featuredSection}>
+                <h3 style={s.featuredHeading}>{copy.featuredHeading || "Featured this season"}</h3>
+                <div style={s.featuredGrid}>
+                  {featured.map((p) => (
+                    <ProductCard
+                      key={p.id}
+                      p={p}
+                      copy={copy}
+                      isAdmin={isAdmin}
+                      qty={cart[`${manufacturer.id}::${p.id}`] || 0}
+                      onAdd={onAddToCart}
+                      onSetQty={onSetCartQty}
+                      onEdit={onEditProduct}
+                      onDelete={onDeleteProduct}
+                      onEditCopy={onEditCopy}
+                      ribbon={copy.featuredHeading || "Featured"}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            <section style={s.shopSection}>
+              {isAdmin && onAddProduct && (
+                <button type="button" style={s.addProductBtn} onClick={onAddProduct}>
+                  {copy.addProductButtonLabel || "+ Add product"}
+                </button>
+              )}
+
+              {filtered.length === 0 ? (
+                <p style={s.pageIntro}>{copy.emptyShopText || "No products in this category yet."}</p>
+              ) : (
+                <div style={s.grid}>
+                  {filtered
+                    .filter((p) => !(category === allLabel && p.featured))
+                    .map((p) => (
+                      <ProductCard
+                        key={p.id}
+                        p={p}
+                        copy={copy}
+                        isAdmin={isAdmin}
+                        qty={cart[`${manufacturer.id}::${p.id}`] || 0}
+                        onAdd={onAddToCart}
+                        onSetQty={onSetCartQty}
+                        onEdit={onEditProduct}
+                        onDelete={onDeleteProduct}
+                        onEditCopy={onEditCopy}
+                      />
+                    ))}
+                </div>
+              )}
+            </section>
+          </>
+        )}
+      </div>
+    </>
+  );
+}
