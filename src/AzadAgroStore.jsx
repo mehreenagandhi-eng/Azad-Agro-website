@@ -152,7 +152,9 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
     setTimeout(() => setSavedFlash(""), 1800);
   };
 
-  const saveSite = useCallback(async (next) => {
+  const saveSite = useCallback(async (nextOrUpdater) => {
+    const next =
+      typeof nextOrUpdater === "function" ? nextOrUpdater(siteRef.current) : nextOrUpdater;
     setSite(next);
     siteRef.current = next;
     try {
@@ -631,7 +633,7 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
                     id="txt1"
                     isAdmin={isAdmin}
                     value={site.title}
-                    onSave={(v) => saveSite({ ...site, title: v })}
+                    onSave={(v) => saveSite((prev) => ({ ...prev, title: v }))}
                     textStyle={s.headerBrandTitle}
                   />
                 </div>
@@ -1001,7 +1003,7 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
               aspect={1}
               onCancel={() => setLogoCropSource(null)}
               onConfirm={(dataUrl) => {
-                saveSite({ ...site, headerLogo: dataUrl });
+                saveSite((prev) => ({ ...prev, headerLogo: dataUrl }));
                 setLogoCropSource(null);
               }}
             />
@@ -1102,7 +1104,7 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
                 isAdmin={isAdmin}
                 value={site.footerText}
                 multiline
-                onSave={(v) => saveSite({ ...site, footerText: v })}
+                onSave={(v) => saveSite((prev) => ({ ...prev, footerText: v }))}
                 textStyle={s.footerText}
               />
             </div>
@@ -1120,14 +1122,14 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
                 id="txt15"
                 isAdmin={isAdmin}
                 value={site.contactEmail}
-                onSave={(v) => saveSite({ ...site, contactEmail: v })}
+                onSave={(v) => saveSite((prev) => ({ ...prev, contactEmail: v }))}
                 textStyle={s.footerText}
               />
               <EditableText
                 id="txt16"
                 isAdmin={isAdmin}
                 value={site.contactPhone}
-                onSave={(v) => saveSite({ ...site, contactPhone: v })}
+                onSave={(v) => saveSite((prev) => ({ ...prev, contactPhone: v }))}
                 textStyle={s.footerText}
               />
             </div>
@@ -1146,7 +1148,7 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
                 isAdmin={isAdmin}
                 value={site.footerText}
                 multiline
-                onSave={(v) => saveSite({ ...site, footerText: v })}
+                onSave={(v) => saveSite((prev) => ({ ...prev, footerText: v }))}
                 textStyle={s.footerText}
               />
             </div>

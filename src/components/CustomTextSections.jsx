@@ -110,6 +110,13 @@ function CustomTextSectionBlock({ item, isAdmin, onUpdate, onRemove }) {
     ...(isAdmin ? s.customTextSectionAdmin : null),
   };
 
+  const remove = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setColorOpen(false);
+    onRemove?.(item.id);
+  };
+
   return (
     <section style={shellStyle}>
       {isAdmin && (
@@ -127,7 +134,13 @@ function CustomTextSectionBlock({ item, isAdmin, onUpdate, onRemove }) {
           >
             Color
           </button>
-          <button type="button" style={s.sectionRemoveBtn} onClick={() => onRemove?.(item.id)}>
+          <button
+            type="button"
+            style={s.sectionRemoveBtn}
+            // mousedown + preventDefault so field blur cannot re-save after delete
+            onMouseDown={remove}
+            onClick={remove}
+          >
             Remove section
           </button>
         </div>
@@ -173,19 +186,43 @@ function CustomTextSectionBlock({ item, isAdmin, onUpdate, onRemove }) {
  * Content + colors persist with the parent save handler.
  */
 export function CustomTextSections({ isAdmin = false, sections = [], onChange, addLabel = "+ Add text section" }) {
-  const list = Array.isArray(sections) ? sections : [];
+  const propsList = Array.isArray(sections) ? sections : [];
+  const [list, setList] = useState(propsList);
+  const listRef = useRef(list);
+  const removedIdsRef = useRef(new Set());
+  listRef.current = list;
+
+  // Sync from parent, but never re-introduce sections the user already removed.
+  const propsKey = propsList.map((item) => item.id).join("|");
+  useEffect(() => {
+    const incoming = Array.isArray(sections) ? sections : [];
+    const filtered = incoming.filter((item) => !removedIdsRef.current.has(item.id));
+    setList(filtered);
+    listRef.current = filtered;
+    // intentionally depend on id signature + sections reference from parent
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [propsKey, sections]);
+
+  const persist = (next) => {
+    listRef.current = next;
+    setList(next);
+    onChange?.(next);
+  };
 
   const updateItem = (id, partial) => {
-    onChange?.(list.map((item) => (item.id === id ? { ...item, ...partial } : item)));
+    if (removedIdsRef.current.has(id)) return;
+    if (!listRef.current.some((item) => item.id === id)) return;
+    persist(listRef.current.map((item) => (item.id === id ? { ...item, ...partial } : item)));
   };
 
   const removeItem = (id) => {
-    onChange?.(list.filter((item) => item.id !== id));
+    removedIdsRef.current.add(id);
+    persist(listRef.current.filter((item) => item.id !== id));
   };
 
   const addItem = () => {
-    onChange?.([
-      ...list,
+    persist([
+      ...listRef.current,
       {
         id: sectionId(),
         heading: "New text section",

@@ -17,14 +17,18 @@ export function MissionPage({
   const pointsVisible = isSectionVisible(theme, "missionPoints");
 
   const set = (field, value) => {
-    if (onUpdateMarketplace) onUpdateMarketplace({ ...marketplace, [field]: value });
+    if (!onUpdateMarketplace) return;
+    onUpdateMarketplace((prev) => ({
+      ...prev,
+      [field]: typeof value === "function" ? value(prev[field]) : value,
+    }));
   };
 
   const setCustomSections = (next) => {
-    set("customTextSections", {
-      ...(marketplace.customTextSections || {}),
+    set("customTextSections", (prev) => ({
+      ...(prev || {}),
       mission: next,
-    });
+    }));
   };
 
   return (

@@ -103,7 +103,11 @@ export function ManufacturerDirectory({
   );
 
   const set = (field, value) => {
-    if (onUpdateMarketplace) onUpdateMarketplace({ ...marketplace, [field]: value });
+    if (!onUpdateMarketplace) return;
+    onUpdateMarketplace((prev) => ({
+      ...prev,
+      [field]: typeof value === "function" ? value(prev[field]) : value,
+    }));
   };
 
   return (
@@ -169,10 +173,10 @@ export function ManufacturerDirectory({
           isAdmin={isAdmin}
           sections={marketplace.customTextSections?.directory || []}
           onChange={(next) =>
-            set("customTextSections", {
-              ...(marketplace.customTextSections || {}),
+            set("customTextSections", (prev) => ({
+              ...(prev || {}),
               directory: next,
-            })
+            }))
           }
         />
       </div>

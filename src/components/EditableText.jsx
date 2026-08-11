@@ -42,7 +42,17 @@ export function EditableText({
   const draftRef = useRef(draft);
   const valueRef = useRef(value);
   const saveTimer = useRef(null);
+  const mountedRef = useRef(true);
   const commitKey = id || `field-${multiline ? "multi" : "single"}`;
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      clearPendingTextCommit(commitKey);
+    };
+  }, [commitKey]);
 
   useEffect(() => {
     setDraft(value ?? "");
@@ -57,10 +67,24 @@ export function EditableText({
   }, [value]);
 
   const commit = useCallback(() => {
+    if (!mountedRef.current) return;
     const next = String(draftRef.current ?? "").trimEnd();
     if (next !== String(valueRef.current ?? "")) onSave?.(next);
     clearPendingTextCommit(commitKey);
   }, [onSave, commitKey]);
+
+  // Blur can fire while a section is being removed; defer so unmount cleanup wins.
+  const commitOnBlur = useCallback(() => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = null;
+    queueMicrotask(() => {
+      if (!mountedRef.current) {
+        clearPendingTextCommit(commitKey);
+        return;
+      }
+      commit();
+    });
+  }, [commit, commitKey]);
 
   useEffect(() => {
     registerPendingTextCommit(commitKey, commit);
@@ -68,11 +92,15 @@ export function EditableText({
   }, [commitKey, commit]);
 
   const queueSave = (nextDraft) => {
+    if (!mountedRef.current) return;
     setDraft(nextDraft);
     draftRef.current = nextDraft;
     registerPendingTextCommit(commitKey, commit);
     if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => commit(), 300);
+    saveTimer.current = setTimeout(() => {
+      if (!mountedRef.current) return;
+      commit();
+    }, 300);
   };
 
   const override = (id && overrides[id]) || null;
@@ -121,10 +149,7 @@ export function EditableText({
         <textarea
           value={draft}
           onChange={(e) => queueSave(e.target.value)}
-          onBlur={() => {
-            if (saveTimer.current) clearTimeout(saveTimer.current);
-            commit();
-          }}
+          onBlur={commitOnBlur}
           onKeyDown={onKeyDown}
           rows={3}
           style={{
@@ -139,10 +164,7 @@ export function EditableText({
           type="text"
           value={draft}
           onChange={(e) => queueSave(e.target.value)}
-          onBlur={() => {
-            if (saveTimer.current) clearTimeout(saveTimer.current);
-            commit();
-          }}
+          onBlur={commitOnBlur}
           onKeyDown={onKeyDown}
           style={{
             ...fieldStyle,

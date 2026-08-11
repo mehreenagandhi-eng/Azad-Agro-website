@@ -38,7 +38,11 @@ export function ManufacturerPage({
   const [category, setCategory] = useState(copy.allCategoryLabel || "All");
 
   const setMfg = (field, value) => {
-    if (onUpdateManufacturer) onUpdateManufacturer({ ...manufacturer, [field]: value });
+    if (!onUpdateManufacturer) return;
+    onUpdateManufacturer((prev) => ({
+      ...prev,
+      [field]: typeof value === "function" ? value(prev[field]) : value,
+    }));
   };
 
   const products = manufacturer.products || [];

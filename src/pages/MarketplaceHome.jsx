@@ -10,7 +10,11 @@ import { CustomTextSections } from "../components/CustomTextSections";
  */
 export function MarketplaceHome({ marketplace, isAdmin = false, onUpdateMarketplace }) {
   const set = (field, value) => {
-    if (onUpdateMarketplace) onUpdateMarketplace({ ...marketplace, [field]: value });
+    if (!onUpdateMarketplace) return;
+    onUpdateMarketplace((prev) => ({
+      ...prev,
+      [field]: typeof value === "function" ? value(prev[field]) : value,
+    }));
   };
 
   return (
@@ -105,10 +109,10 @@ export function MarketplaceHome({ marketplace, isAdmin = false, onUpdateMarketpl
           isAdmin={isAdmin}
           sections={marketplace.customTextSections?.home || []}
           onChange={(next) =>
-            set("customTextSections", {
-              ...(marketplace.customTextSections || {}),
+            set("customTextSections", (prev) => ({
+              ...(prev || {}),
               home: next,
-            })
+            }))
           }
         />
       </div>

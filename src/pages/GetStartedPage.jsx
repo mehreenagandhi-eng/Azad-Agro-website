@@ -88,7 +88,11 @@ export function GetStartedPage({
   const copy = marketplace.copy || {};
 
   const set = (field, value) => {
-    if (onUpdateMarketplace) onUpdateMarketplace({ ...marketplace, [field]: value });
+    if (!onUpdateMarketplace) return;
+    onUpdateMarketplace((prev) => ({
+      ...prev,
+      [field]: typeof value === "function" ? value(prev[field]) : value,
+    }));
   };
 
   return (
@@ -156,10 +160,10 @@ export function GetStartedPage({
           isAdmin={isAdmin}
           sections={marketplace.customTextSections?.getstarted || []}
           onChange={(next) =>
-            set("customTextSections", {
-              ...(marketplace.customTextSections || {}),
+            set("customTextSections", (prev) => ({
+              ...(prev || {}),
               getstarted: next,
-            })
+            }))
           }
         />
       </div>
