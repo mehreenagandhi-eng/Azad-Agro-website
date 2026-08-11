@@ -497,6 +497,55 @@ export const s = {
     cursor: "pointer",
   },
 
+  authControls: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    flexWrap: "wrap",
+  },
+
+  signUpBtn: {
+    border: "1px solid color-mix(in srgb, var(--accent) 55%, transparent)",
+    background: "var(--accent)",
+    color: "var(--paper)",
+    fontFamily: "var(--font-body)",
+    fontSize: 13.5,
+    fontWeight: 650,
+    padding: "9px 14px",
+    borderRadius: 10,
+    cursor: "pointer",
+  },
+
+  signUpBtnWide: {
+    border: "1px solid color-mix(in srgb, var(--accent) 55%, transparent)",
+    background: "var(--accent)",
+    color: "var(--paper)",
+    fontFamily: "var(--font-body)",
+    fontSize: 14,
+    fontWeight: 700,
+    padding: "12px 14px",
+    borderRadius: 12,
+    cursor: "pointer",
+    width: "100%",
+  },
+
+  userButtonWrap: {
+    display: "flex",
+    alignItems: "center",
+    minHeight: 34,
+  },
+
+  clerkAccountRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 14,
+  },
+
+  clerkAuthActions: {
+    display: "grid",
+    gap: 10,
+  },
+
   googleDisabledBtn: {
     width: "100%",
     border: "1px dashed var(--border)",

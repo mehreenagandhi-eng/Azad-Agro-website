@@ -6,9 +6,14 @@ import { Modal } from "./components/Modal";
 import { ImageCropper } from "./components/ImageCropper";
 import { ThemeModal } from "./components/ThemeModal";
 import { SectionColorAnchor } from "./components/SectionColorControl";
+import {
+  ClerkAccountControls,
+  ClerkAccountSync,
+  ClerkMissingKeyControls,
+} from "./components/ClerkAccountControls";
+import { ClerkSetupHelpModal } from "./components/ClerkAccountModal";
 import { ProductEditModal } from "./components/ProductEditModal";
 import { ManufacturerEditModal } from "./components/ManufacturerEditModal";
-import { SettingsModal } from "./components/SettingsModal";
 import { OwnerLoginModal } from "./components/OwnerLoginModal";
 import { MarketplaceHome } from "./pages/MarketplaceHome";
 import { ManufacturerDirectory } from "./pages/ManufacturerDirectory";
@@ -30,7 +35,7 @@ import { buildGoogleFontsUrl, findFont } from "./data/fonts";
 import { s } from "./styles";
 import { Icon } from "./components/Icon";
 
-export default function AzadAgroStore() {
+export default function AzadAgroStore({ clerkEnabled = false }) {
   const [view, setView] = useState("home");
   const [activeManufacturerId, setActiveManufacturerId] = useState(null);
   const [mfgTab, setMfgTab] = useState("order");
@@ -42,17 +47,17 @@ export default function AzadAgroStore() {
   const [theme, setTheme] = useState(DEFAULT_THEME);
   const [activeColorSection, setActiveColorSection] = useState(null);
   const [loaded, setLoaded] = useState(false);
-  const [showTheme, setShowTheme] = useState(false);
   const [logoCropSource, setLogoCropSource] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
+  const [showTheme, setShowTheme] = useState(false);
   const [showOwnerLogin, setShowOwnerLogin] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
+  const [showClerkHelp, setShowClerkHelp] = useState(false);
   const [account, setAccount] = useState(null);
   const [ownerLoginError, setOwnerLoginError] = useState("");
+  const [savedFlash, setSavedFlash] = useState("");
   const [editingProduct, setEditingProduct] = useState(null);
   const [editingManufacturer, setEditingManufacturer] = useState(null);
-  const [savedFlash, setSavedFlash] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -74,12 +79,6 @@ export default function AzadAgroStore() {
         if (!cancelled && res) setTheme({ ...DEFAULT_THEME, ...JSON.parse(res.value) });
       } catch {
         await window.storage.set("theme-v2", JSON.stringify(DEFAULT_THEME), true).catch(() => {});
-      }
-      try {
-        const res = await window.storage.get("account", false);
-        if (!cancelled && res) setAccount(JSON.parse(res.value));
-      } catch {
-        /* no account yet */
       }
       if (!cancelled) setLoaded(true);
     }
@@ -317,16 +316,9 @@ export default function AzadAgroStore() {
     } else setOwnerLoginError("Wrong passcode. Try again.");
   }
 
-  function signIn(name, email) {
-    const next = { name: name.trim(), email: email.trim() };
+  const onClerkAccount = useCallback((next) => {
     setAccount(next);
-    window.storage.set("account", JSON.stringify(next), false).catch(() => {});
-  }
-
-  function signOut() {
-    setAccount(null);
-    window.storage.delete("account", false).catch(() => {});
-  }
+  }, []);
 
   function goToManufacturer(mid) {
     setActiveManufacturerId(mid);
@@ -604,14 +596,14 @@ export default function AzadAgroStore() {
               )}
             </nav>
 
-            <button
-              className="aa-btn"
-              style={{ ...s.navLink, position: "relative" }}
-              onClick={() => setShowSettings(true)}
-              aria-label="Settings"
-            >
-              ⚙️{account && <span style={s.accountDot} aria-hidden="true" />}
-            </button>
+            {clerkEnabled ? (
+              <>
+                <ClerkAccountSync onAccount={onClerkAccount} />
+                <ClerkAccountControls />
+              </>
+            ) : (
+              <ClerkMissingKeyControls onOpenHelp={() => setShowClerkHelp(true)} />
+            )}
 
             <button
               className="aa-btn"
@@ -709,6 +701,7 @@ export default function AzadAgroStore() {
           <Checkout
             marketplace={site}
             cartItems={items}
+            account={account}
             onBack={() => setView(activeManufacturerId ? "manufacturer" : "directory")}
             onPlaceOrder={placeOrder}
           />
@@ -880,14 +873,7 @@ export default function AzadAgroStore() {
           />
         )}
 
-        {showSettings && (
-          <SettingsModal
-            account={account}
-            onSignIn={signIn}
-            onSignOut={signOut}
-            onClose={() => setShowSettings(false)}
-          />
-        )}
+        {!clerkEnabled && showClerkHelp && <ClerkSetupHelpModal onClose={() => setShowClerkHelp(false)} />}
 
         {editingProduct && activeManufacturer && (
           <ProductEditModal

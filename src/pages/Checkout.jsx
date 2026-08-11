@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { s } from "../styles";
 import { Icon, ProductVisual } from "../components/Icon";
 import { SectionColorControl } from "../components/SectionColorControl";
@@ -55,18 +55,23 @@ export function Confirmation({ order, marketplace, onContinue }) {
 export function Checkout({
   marketplace,
   cartItems = [],
+  account = null,
   onBack,
   onPlaceOrder,
   confirmedOrder,
   onContinueShopping,
 }) {
   const copy = marketplace.copy || {};
-  const [name, setName] = useState("");
+  const [name, setName] = useState(account?.name || "");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [pincode, setPincode] = useState("");
   const [payment, setPayment] = useState("cod");
+
+  useEffect(() => {
+    if (account?.name) setName((prev) => prev || account.name);
+  }, [account]);
 
   const subtotal = useMemo(
     () => cartItems.reduce((sum, item) => sum + lineTotal(item), 0),
