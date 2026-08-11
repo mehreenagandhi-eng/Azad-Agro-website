@@ -126,23 +126,3 @@ export function mergeTheme(defaults, saved) {
     textOverrides: { ...(saved.textOverrides || {}) },
   };
 }
-
-export function exportMarketplaceBackup({ site, theme, manufacturers }) {
-  return {
-    version: 1,
-    exportedAt: new Date().toISOString(),
-    site,
-    theme,
-    manufacturers,
-  };
-}
-
-export function downloadBackup(payload, filename = "indias-organic-marketplace-backup.json") {
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}

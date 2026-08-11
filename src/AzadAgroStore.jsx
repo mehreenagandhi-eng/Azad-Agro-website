@@ -36,8 +36,6 @@ import { s } from "./styles";
 import { Icon } from "./components/Icon";
 import {
   bindPersistenceLifecycle,
-  downloadBackup,
-  exportMarketplaceBackup,
   flushAllPersistence,
   localKey,
   mergeSite,
@@ -57,9 +55,16 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
   const [cart, setCart] = useState({});
   const [cartOpen, setCartOpen] = useState(false);
   const [order, setOrder] = useState(null);
-  const [site, setSite] = useState(DEFAULT_MARKETPLACE);
-  const [manufacturers, setManufacturers] = useState(DEFAULT_MANUFACTURERS);
-  const [theme, setTheme] = useState(DEFAULT_THEME);
+  const [site, setSite] = useState(() =>
+    mergeSite(DEFAULT_MARKETPLACE, readJson(sharedKey("site-config-v2"), null))
+  );
+  const [manufacturers, setManufacturers] = useState(() => {
+    const saved = readJson(sharedKey("manufacturers-v2"), null);
+    return Array.isArray(saved) && saved.length ? saved : DEFAULT_MANUFACTURERS;
+  });
+  const [theme, setTheme] = useState(() =>
+    mergeTheme(DEFAULT_THEME, readJson(sharedKey("theme-v2"), null))
+  );
   const [activeColorSection, setActiveColorSection] = useState(null);
   const [loaded, setLoaded] = useState(false);
   const [logoCropSource, setLogoCropSource] = useState(null);
@@ -98,28 +103,37 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
 
   useEffect(() => {
     let cancelled = false;
-    async function load() {
+    // Ensure defaults exist only when nothing was ever saved; never overwrite existing edits.
+    async function ensureDefaults() {
       try {
-        const res = await window.storage.get("site-config-v2", true);
-        if (!cancelled && res) setSite(mergeSite(DEFAULT_MARKETPLACE, JSON.parse(res.value)));
+        await window.storage.get("site-config-v2", true);
       } catch {
-        await window.storage.set("site-config-v2", JSON.stringify(DEFAULT_MARKETPLACE), true).catch(() => {});
+        if (!readJson(sharedKey("site-config-v2"), null)) {
+          writeJson(sharedKey("site-config-v2"), siteRef.current);
+          await window.storage.set("site-config-v2", JSON.stringify(siteRef.current), true).catch(() => {});
+        }
       }
       try {
-        const res = await window.storage.get("manufacturers-v2", true);
-        if (!cancelled && res) setManufacturers(JSON.parse(res.value));
+        await window.storage.get("manufacturers-v2", true);
       } catch {
-        await window.storage.set("manufacturers-v2", JSON.stringify(DEFAULT_MANUFACTURERS), true).catch(() => {});
+        if (!readJson(sharedKey("manufacturers-v2"), null)) {
+          writeJson(sharedKey("manufacturers-v2"), manufacturersRef.current);
+          await window.storage
+            .set("manufacturers-v2", JSON.stringify(manufacturersRef.current), true)
+            .catch(() => {});
+        }
       }
       try {
-        const res = await window.storage.get("theme-v2", true);
-        if (!cancelled && res) setTheme(mergeTheme(DEFAULT_THEME, JSON.parse(res.value)));
+        await window.storage.get("theme-v2", true);
       } catch {
-        await window.storage.set("theme-v2", JSON.stringify(DEFAULT_THEME), true).catch(() => {});
+        if (!readJson(sharedKey("theme-v2"), null)) {
+          writeJson(sharedKey("theme-v2"), themeRef.current);
+          await window.storage.set("theme-v2", JSON.stringify(themeRef.current), true).catch(() => {});
+        }
       }
       if (!cancelled) setLoaded(true);
     }
-    load();
+    ensureDefaults();
     return () => {
       cancelled = true;
       flushAllPersistence();
@@ -376,52 +390,6 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
   const onClerkAccount = useCallback((next) => {
     setAccount(next);
   }, []);
-
-  const exportBackup = useCallback(() => {
-    flushAllPersistence();
-    downloadBackup(
-      exportMarketplaceBackup({
-        site: siteRef.current,
-        theme: themeRef.current,
-        manufacturers: manufacturersRef.current,
-      })
-    );
-    flash("Backup downloaded");
-  }, []);
-
-  const importBackupFile = useCallback(
-    async (file) => {
-      if (!file) return;
-      try {
-        const text = await file.text();
-        const data = JSON.parse(text);
-        if (data.site) {
-          const nextSite = mergeSite(DEFAULT_MARKETPLACE, data.site);
-          setSite(nextSite);
-          siteRef.current = nextSite;
-          writeJson(sharedKey("site-config-v2"), nextSite);
-          await window.storage.set("site-config-v2", JSON.stringify(nextSite), true);
-        }
-        if (data.theme) {
-          const nextTheme = mergeTheme(DEFAULT_THEME, data.theme);
-          setTheme(nextTheme);
-          themeRef.current = nextTheme;
-          writeJson(sharedKey("theme-v2"), nextTheme);
-          await window.storage.set("theme-v2", JSON.stringify(nextTheme), true);
-        }
-        if (data.manufacturers) {
-          setManufacturers(data.manufacturers);
-          manufacturersRef.current = data.manufacturers;
-          writeJson(sharedKey("manufacturers-v2"), data.manufacturers);
-          await window.storage.set("manufacturers-v2", JSON.stringify(data.manufacturers), true);
-        }
-        flash("Backup restored");
-      } catch {
-        flash("Could not restore backup");
-      }
-    },
-    []
-  );
 
   function goToManufacturer(mid) {
     setActiveManufacturerId(mid);
@@ -681,28 +649,7 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
                 ))}
               {isAdmin ? (
                 <span style={s.adminBadge}>
-                  Editing mode
-                  <button
-                    type="button"
-                    style={s.adminExit}
-                    onClick={exportBackup}
-                    title="Download a backup of text + theme"
-                  >
-                    Save file
-                  </button>
-                  <label style={{ ...s.adminExit, cursor: "pointer" }} title="Restore a backup JSON file">
-                    Load file
-                    <input
-                      type="file"
-                      accept="application/json,.json"
-                      style={{ display: "none" }}
-                      onChange={(e) => {
-                        const file = e.target.files && e.target.files[0];
-                        e.target.value = "";
-                        importBackupFile(file);
-                      }}
-                    />
-                  </label>
+                  Editing mode · auto-saves
                   <button
                     style={s.adminExit}
                     onClick={() => {
