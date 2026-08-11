@@ -1,9 +1,10 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
   TextStyleContext,
   applyTextOverride,
   TextStylePopover,
 } from "../context/TextStyleContext";
+import { clearPendingTextCommit, registerPendingTextCommit } from "../persistence";
 import { s } from "../styles";
 
 const adminShell = {
@@ -38,10 +39,41 @@ export function EditableText({
   const [draft, setDraft] = useState(value ?? "");
   const [popOpen, setPopOpen] = useState(false);
   const wrapRef = useRef(null);
+  const draftRef = useRef(draft);
+  const valueRef = useRef(value);
+  const saveTimer = useRef(null);
+  const commitKey = id || `field-${multiline ? "multi" : "single"}`;
 
   useEffect(() => {
     setDraft(value ?? "");
   }, [value]);
+
+  useEffect(() => {
+    draftRef.current = draft;
+  }, [draft]);
+
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
+
+  const commit = useCallback(() => {
+    const next = String(draftRef.current ?? "").trimEnd();
+    if (next !== String(valueRef.current ?? "")) onSave?.(next);
+    clearPendingTextCommit(commitKey);
+  }, [onSave, commitKey]);
+
+  useEffect(() => {
+    registerPendingTextCommit(commitKey, commit);
+    return () => clearPendingTextCommit(commitKey);
+  }, [commitKey, commit]);
+
+  const queueSave = (nextDraft) => {
+    setDraft(nextDraft);
+    draftRef.current = nextDraft;
+    registerPendingTextCommit(commitKey, commit);
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => commit(), 300);
+  };
 
   const override = (id && overrides[id]) || null;
   const resolvedStyle = applyTextOverride(
@@ -52,19 +84,17 @@ export function EditableText({
     override
   );
 
-  const commit = () => {
-    const next = draft.trimEnd();
-    if (next !== (value ?? "")) onSave?.(next);
-  };
-
   const onKeyDown = (e) => {
     if (e.key === "Enter" && (!multiline || !e.shiftKey)) {
       e.preventDefault();
+      if (saveTimer.current) clearTimeout(saveTimer.current);
       commit();
       e.currentTarget.blur();
     }
     if (e.key === "Escape") {
       setDraft(value ?? "");
+      draftRef.current = value ?? "";
+      clearPendingTextCommit(commitKey);
       e.currentTarget.blur();
     }
   };
@@ -90,8 +120,11 @@ export function EditableText({
       {multiline ? (
         <textarea
           value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={commit}
+          onChange={(e) => queueSave(e.target.value)}
+          onBlur={() => {
+            if (saveTimer.current) clearTimeout(saveTimer.current);
+            commit();
+          }}
           onKeyDown={onKeyDown}
           rows={3}
           style={{
@@ -105,8 +138,11 @@ export function EditableText({
         <input
           type="text"
           value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={commit}
+          onChange={(e) => queueSave(e.target.value)}
+          onBlur={() => {
+            if (saveTimer.current) clearTimeout(saveTimer.current);
+            commit();
+          }}
           onKeyDown={onKeyDown}
           style={{
             ...fieldStyle,

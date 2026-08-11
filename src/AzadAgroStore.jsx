@@ -34,6 +34,21 @@ import { DEFAULT_THEME, SECTION_DEFS, sectionValue } from "./data/themes";
 import { buildGoogleFontsUrl, findFont } from "./data/fonts";
 import { s } from "./styles";
 import { Icon } from "./components/Icon";
+import {
+  bindPersistenceLifecycle,
+  downloadBackup,
+  exportMarketplaceBackup,
+  flushAllPersistence,
+  localKey,
+  mergeSite,
+  mergeTheme,
+  readJson,
+  setManufacturersFlush,
+  setSiteFlush,
+  setThemeFlush,
+  sharedKey,
+  writeJson,
+} from "./persistence";
 
 export default function AzadAgroStore({ clerkEnabled = false }) {
   const [view, setView] = useState("home");
@@ -48,8 +63,8 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
   const [activeColorSection, setActiveColorSection] = useState(null);
   const [loaded, setLoaded] = useState(false);
   const [logoCropSource, setLogoCropSource] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isOwner, setIsOwner] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(() => Boolean(readJson(localKey("edit-mode"), false)));
+  const [isOwner, setIsOwner] = useState(() => Boolean(readJson(localKey("owner-mode"), false)));
   const [showTheme, setShowTheme] = useState(false);
   const [showOwnerLogin, setShowOwnerLogin] = useState(false);
   const [showClerkHelp, setShowClerkHelp] = useState(false);
@@ -59,12 +74,34 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
   const [editingProduct, setEditingProduct] = useState(null);
   const [editingManufacturer, setEditingManufacturer] = useState(null);
 
+  const siteRef = React.useRef(site);
+  const themeRef = React.useRef(theme);
+  const manufacturersRef = React.useRef(manufacturers);
+  siteRef.current = site;
+  themeRef.current = theme;
+  manufacturersRef.current = manufacturers;
+
+  useEffect(() => {
+    bindPersistenceLifecycle();
+    setThemeFlush(() => writeJson(sharedKey("theme-v2"), themeRef.current));
+    setSiteFlush(() => writeJson(sharedKey("site-config-v2"), siteRef.current));
+    setManufacturersFlush(() => writeJson(sharedKey("manufacturers-v2"), manufacturersRef.current));
+  }, []);
+
+  useEffect(() => {
+    writeJson(localKey("edit-mode"), isAdmin);
+  }, [isAdmin]);
+
+  useEffect(() => {
+    writeJson(localKey("owner-mode"), isOwner);
+  }, [isOwner]);
+
   useEffect(() => {
     let cancelled = false;
     async function load() {
       try {
         const res = await window.storage.get("site-config-v2", true);
-        if (!cancelled && res) setSite({ ...DEFAULT_MARKETPLACE, ...JSON.parse(res.value) });
+        if (!cancelled && res) setSite(mergeSite(DEFAULT_MARKETPLACE, JSON.parse(res.value)));
       } catch {
         await window.storage.set("site-config-v2", JSON.stringify(DEFAULT_MARKETPLACE), true).catch(() => {});
       }
@@ -76,7 +113,7 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
       }
       try {
         const res = await window.storage.get("theme-v2", true);
-        if (!cancelled && res) setTheme({ ...DEFAULT_THEME, ...JSON.parse(res.value) });
+        if (!cancelled && res) setTheme(mergeTheme(DEFAULT_THEME, JSON.parse(res.value)));
       } catch {
         await window.storage.set("theme-v2", JSON.stringify(DEFAULT_THEME), true).catch(() => {});
       }
@@ -85,6 +122,7 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
     load();
     return () => {
       cancelled = true;
+      flushAllPersistence();
     };
   }, []);
 
@@ -95,7 +133,9 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
 
   const saveSite = useCallback(async (next) => {
     setSite(next);
+    siteRef.current = next;
     try {
+      writeJson(sharedKey("site-config-v2"), next);
       await window.storage.set("site-config-v2", JSON.stringify(next), true);
       flash("Saved");
     } catch {
@@ -106,17 +146,23 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
   const updateCopy = useCallback((key, val) => {
     setSite((prev) => {
       const next = { ...prev, copy: { ...prev.copy, [key]: val } };
-      window.storage
-        .set("site-config-v2", JSON.stringify(next), true)
-        .then(() => flash("Saved"))
-        .catch(() => flash("Save failed — try again"));
+      siteRef.current = next;
+      try {
+        writeJson(sharedKey("site-config-v2"), next);
+        window.storage.set("site-config-v2", JSON.stringify(next), true).catch(() => {});
+        flash("Saved");
+      } catch {
+        flash("Save failed — try again");
+      }
       return next;
     });
   }, []);
 
   const saveManufacturers = useCallback(async (next) => {
     setManufacturers(next);
+    manufacturersRef.current = next;
     try {
+      writeJson(sharedKey("manufacturers-v2"), next);
       await window.storage.set("manufacturers-v2", JSON.stringify(next), true);
       flash("Saved");
     } catch {
@@ -129,16 +175,27 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
       const next = prev.map((m) =>
         m.id === mid ? { ...m, ...(typeof updater === "function" ? updater(m) : updater) } : m
       );
-      window.storage
-        .set("manufacturers-v2", JSON.stringify(next), true)
-        .then(() => flash("Saved"))
-        .catch(() => flash("Save failed — try again"));
+      manufacturersRef.current = next;
+      try {
+        writeJson(sharedKey("manufacturers-v2"), next);
+        window.storage.set("manufacturers-v2", JSON.stringify(next), true).catch(() => {});
+        flash("Saved");
+      } catch {
+        flash("Save failed — try again");
+      }
       return next;
     });
   }, []);
 
   const themeSaveTimer = React.useRef(null);
   const persistTheme = useCallback((next) => {
+    themeRef.current = next;
+    // Write immediately so a refresh never loses color/theme edits
+    try {
+      writeJson(sharedKey("theme-v2"), next);
+    } catch {
+      /* ignore sync write errors; async path still attempts */
+    }
     if (themeSaveTimer.current) clearTimeout(themeSaveTimer.current);
     themeSaveTimer.current = setTimeout(async () => {
       try {
@@ -147,7 +204,7 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
       } catch {
         flash("Save failed — try again");
       }
-    }, 450);
+    }, 250);
   }, []);
 
   const saveTheme = useCallback(
@@ -319,6 +376,52 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
   const onClerkAccount = useCallback((next) => {
     setAccount(next);
   }, []);
+
+  const exportBackup = useCallback(() => {
+    flushAllPersistence();
+    downloadBackup(
+      exportMarketplaceBackup({
+        site: siteRef.current,
+        theme: themeRef.current,
+        manufacturers: manufacturersRef.current,
+      })
+    );
+    flash("Backup downloaded");
+  }, []);
+
+  const importBackupFile = useCallback(
+    async (file) => {
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if (data.site) {
+          const nextSite = mergeSite(DEFAULT_MARKETPLACE, data.site);
+          setSite(nextSite);
+          siteRef.current = nextSite;
+          writeJson(sharedKey("site-config-v2"), nextSite);
+          await window.storage.set("site-config-v2", JSON.stringify(nextSite), true);
+        }
+        if (data.theme) {
+          const nextTheme = mergeTheme(DEFAULT_THEME, data.theme);
+          setTheme(nextTheme);
+          themeRef.current = nextTheme;
+          writeJson(sharedKey("theme-v2"), nextTheme);
+          await window.storage.set("theme-v2", JSON.stringify(nextTheme), true);
+        }
+        if (data.manufacturers) {
+          setManufacturers(data.manufacturers);
+          manufacturersRef.current = data.manufacturers;
+          writeJson(sharedKey("manufacturers-v2"), data.manufacturers);
+          await window.storage.set("manufacturers-v2", JSON.stringify(data.manufacturers), true);
+        }
+        flash("Backup restored");
+      } catch {
+        flash("Could not restore backup");
+      }
+    },
+    []
+  );
 
   function goToManufacturer(mid) {
     setActiveManufacturerId(mid);
@@ -580,8 +683,30 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
                 <span style={s.adminBadge}>
                   Editing mode
                   <button
+                    type="button"
+                    style={s.adminExit}
+                    onClick={exportBackup}
+                    title="Download a backup of text + theme"
+                  >
+                    Save file
+                  </button>
+                  <label style={{ ...s.adminExit, cursor: "pointer" }} title="Restore a backup JSON file">
+                    Load file
+                    <input
+                      type="file"
+                      accept="application/json,.json"
+                      style={{ display: "none" }}
+                      onChange={(e) => {
+                        const file = e.target.files && e.target.files[0];
+                        e.target.value = "";
+                        importBackupFile(file);
+                      }}
+                    />
+                  </label>
+                  <button
                     style={s.adminExit}
                     onClick={() => {
+                      flushAllPersistence();
                       setIsAdmin(false);
                       setIsOwner(false);
                     }}
