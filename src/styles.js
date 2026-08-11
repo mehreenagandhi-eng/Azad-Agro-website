@@ -30,19 +30,20 @@ export const s = {
     position: "sticky",
     top: 0,
     zIndex: 100,
-    background: "color-mix(in srgb, var(--paper) 88%, transparent)",
-    backdropFilter: "blur(10px)",
-    borderBottom: "1px solid var(--border)",
+    background: "var(--header-bg, color-mix(in srgb, var(--paper) 82%, black 18%))",
+    backdropFilter: "blur(14px)",
+    borderBottom: "1px solid color-mix(in srgb, var(--accent) 28%, var(--border))",
+    boxShadow: "0 10px 28px color-mix(in srgb, black 18%, transparent)",
   },
 
   headerInner: {
     maxWidth: 1180,
     margin: "0 auto",
-    padding: "14px 20px",
+    padding: "16px 22px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 20,
+    gap: 18,
     flexWrap: "wrap",
   },
 
@@ -52,16 +53,22 @@ export const s = {
     gap: 12,
     minWidth: 0,
     position: "relative",
+    cursor: "pointer",
   },
 
   logoMark: {
-    width: 42,
-    height: 42,
-    borderRadius: 10,
+    width: 46,
+    height: 46,
+    borderRadius: "50%",
     objectFit: "cover",
-    border: "1px solid var(--border)",
-    background: "color-mix(in srgb, var(--paper) 70%, var(--accent) 30%)",
+    border: "1px solid color-mix(in srgb, var(--accent) 40%, var(--border))",
+    background: "color-mix(in srgb, var(--ink) 88%, var(--paper) 12%)",
     flexShrink: 0,
+    overflow: "hidden",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 3,
   },
 
   logoEditBadge: {
@@ -90,49 +97,55 @@ export const s = {
 
   headerBrandTitle: {
     margin: 0,
-    fontFamily: "var(--font-display)",
-    fontSize: "clamp(1.15rem, 2vw, 1.45rem)",
+    fontFamily: "var(--header-font, var(--font-display))",
+    fontSize: "clamp(1.2rem, 2vw, 1.55rem)",
     fontWeight: 600,
-    lineHeight: 1.15,
-    letterSpacing: "-0.01em",
+    lineHeight: 1.1,
+    letterSpacing: "-0.02em",
+    color: "var(--header-text, var(--ink))",
   },
 
   logoSub: {
-    margin: "2px 0 0",
-    fontSize: 12,
-    color: "var(--muted)",
-    letterSpacing: "0.02em",
+    margin: "3px 0 0",
+    fontSize: 11,
+    color: "var(--accent)",
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    fontWeight: 500,
   },
 
   nav: {
     display: "flex",
     alignItems: "center",
-    gap: 6,
+    gap: 8,
     flexWrap: "wrap",
   },
 
   navLink: {
-    border: "none",
+    border: "1px solid color-mix(in srgb, var(--accent2) 45%, var(--border))",
     background: "transparent",
-    color: "var(--muted)",
+    color: "var(--header-text, var(--ink))",
     fontFamily: "var(--font-body)",
-    fontSize: 14,
+    fontSize: 13.5,
     fontWeight: 500,
-    padding: "8px 12px",
-    borderRadius: 999,
+    padding: "9px 14px",
+    borderRadius: 10,
     cursor: "pointer",
-    transition: "color 0.15s ease, background 0.15s ease",
+    transition: "color 0.15s ease, background 0.15s ease, border-color 0.15s ease",
   },
 
   navLinkActive: {
-    color: "var(--ink)",
-    background: "color-mix(in srgb, var(--accent) 14%, var(--paper))",
+    border: "1px solid color-mix(in srgb, var(--accent) 55%, transparent)",
+    color: "var(--paper)",
+    background: "var(--accent)",
+    fontWeight: 650,
   },
 
   pageBanner: {
     borderBottom: "1px solid var(--border)",
     background:
-      "linear-gradient(180deg, color-mix(in srgb, var(--accent2) 8%, var(--paper)) 0%, var(--paper) 100%)",
+      "linear-gradient(165deg, color-mix(in srgb, var(--surface, var(--paper)) 70%, black 30%) 0%, color-mix(in srgb, var(--accent2) 14%, var(--paper)) 48%, var(--paper) 100%)",
+    color: "var(--contentpages-text, var(--ink))",
   },
 
   pageBannerInner: {
@@ -564,35 +577,43 @@ export const s = {
   },
 
   hero: {
+    position: "relative",
+    overflow: "hidden",
     borderBottom: "1px solid var(--border)",
-    background:
-      "radial-gradient(1200px 500px at 10% -10%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%), radial-gradient(900px 420px at 90% 0%, color-mix(in srgb, var(--accent2) 10%, transparent), transparent 55%), var(--paper)",
+    background: "var(--hero-bg, transparent)",
+    color: "var(--hero-text, var(--ink))",
+    minHeight: "calc(100vh - 88px)",
+    display: "flex",
+    alignItems: "center",
   },
 
   heroInner: {
     maxWidth: 1180,
     margin: "0 auto",
-    padding: "42px 20px 48px",
+    padding: "56px 22px 64px",
+    width: "100%",
   },
 
   heroGrid: {
+    maxWidth: 1180,
+    margin: "0 auto",
+    padding: "56px 22px 64px",
+    width: "100%",
     display: "grid",
-    gridTemplateColumns: "minmax(0, 1.1fr) minmax(280px, 0.9fr)",
-    gap: 28,
+    gridTemplateColumns: "minmax(0, 1.15fr) minmax(280px, 0.85fr)",
+    gap: 48,
     alignItems: "center",
   },
 
   mfgHeroGrid: {
     display: "grid",
     gridTemplateColumns: "minmax(0, 1fr) minmax(260px, 0.85fr)",
-    gap: 24,
-    alignItems: "start",
+    gap: 36,
+    alignItems: "center",
   },
 
   homeManufacturerPreview: {
-    marginTop: 28,
-    paddingTop: 24,
-    borderTop: "1px solid var(--border)",
+    width: "100%",
   },
 
   previewCard: {
@@ -648,12 +669,14 @@ export const s = {
     display: "flex",
     flexDirection: "column",
     gap: 12,
-    padding: "16px 16px 18px",
-    borderRadius: 16,
+    padding: "22px 20px 20px",
+    borderRadius: 18,
     border: "1px solid var(--border)",
-    background: "var(--paper)",
-    boxShadow: "0 8px 24px color-mix(in srgb, var(--ink) 5%, transparent)",
-    minHeight: 220,
+    background: "color-mix(in srgb, var(--paper) 88%, black 12%)",
+    boxShadow: "0 12px 28px color-mix(in srgb, black 22%, transparent)",
+    minHeight: 240,
+    textAlign: "center",
+    alignItems: "center",
   },
 
   mfgCardLogoWrap: {
@@ -802,13 +825,12 @@ export const s = {
   },
 
   farmPhotoFrame: {
-    padding: 10,
-    borderRadius: 6,
-    background: "var(--paper)",
-    border: "1px solid var(--border)",
-    boxShadow:
-      "0 1px 0 color-mix(in srgb, var(--ink) 8%, transparent), 0 18px 40px color-mix(in srgb, var(--ink) 10%, transparent)",
-    transform: "rotate(-1.2deg)",
+    padding: 0,
+    borderRadius: 22,
+    overflow: "hidden",
+    background: "color-mix(in srgb, var(--paper) 70%, black 30%)",
+    border: "1px solid color-mix(in srgb, var(--accent) 35%, var(--border))",
+    boxShadow: "0 24px 48px color-mix(in srgb, black 35%, transparent)",
   },
 
   farmPhotoImg: {
@@ -816,8 +838,7 @@ export const s = {
     display: "block",
     aspectRatio: "4 / 3",
     objectFit: "cover",
-    borderRadius: 2,
-    border: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)",
+    borderRadius: 0,
   },
 
   farmPhotoPlaceholder: {
@@ -825,90 +846,90 @@ export const s = {
     aspectRatio: "4 / 3",
     display: "grid",
     placeItems: "center",
-    borderRadius: 2,
-    border: "1px dashed var(--border)",
+    gap: 10,
+    borderRadius: 0,
+    border: "none",
     background:
-      "repeating-linear-gradient(135deg, color-mix(in srgb, var(--accent2) 8%, var(--paper)) 0 10px, color-mix(in srgb, var(--accent) 6%, var(--paper)) 10px 20px)",
-    color: "var(--muted)",
+      "radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--accent2) 28%, transparent), transparent 55%), linear-gradient(160deg, color-mix(in srgb, var(--paper) 55%, black 45%), color-mix(in srgb, var(--accent2) 22%, var(--paper)))",
+    color: "var(--muted-light)",
     fontSize: 14,
     textAlign: "center",
-    padding: 16,
+    padding: 24,
   },
 
   farmPhotoCaption: {
-    margin: "10px 0 0",
-    fontFamily: "var(--font-mono)",
-    fontSize: 12,
-    letterSpacing: "0.03em",
+    margin: "12px 0 0",
+    fontSize: 13,
+    fontStyle: "italic",
+    letterSpacing: "0.01em",
     color: "var(--muted)",
     textAlign: "center",
   },
 
   ledgerLine: {
-    margin: 0,
+    margin: "0 0 18px",
     fontFamily: "var(--font-mono)",
-    fontSize: 11,
-    letterSpacing: "0.14em",
+    fontSize: 12,
+    letterSpacing: "0.16em",
     textTransform: "uppercase",
-    color: "color-mix(in srgb, var(--accent) 70%, var(--ink))",
+    color: "var(--accent)",
   },
 
   heroTitle: {
-    margin: "12px 0 0",
-    fontFamily: "var(--font-display)",
-    fontSize: "clamp(2rem, 5vw, 3.4rem)",
-    lineHeight: 1.05,
+    margin: "0 0 18px",
+    fontFamily: "var(--hero-font, var(--font-display))",
+    fontSize: "clamp(2.4rem, 6vw, 4.2rem)",
+    lineHeight: 1.02,
     fontWeight: 600,
     letterSpacing: "-0.03em",
+    fontStyle: "var(--font-display-style)",
   },
 
   heroText: {
-    margin: "14px 0 0",
-    maxWidth: 620,
-    color: "var(--muted)",
+    margin: "0 0 28px",
+    maxWidth: 540,
+    color: "var(--muted-light)",
     fontSize: "1.05rem",
     lineHeight: 1.7,
   },
 
   heroLedger: {
-    display: "grid",
-    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-    gap: 0,
-    marginTop: 22,
-    border: "1px solid var(--border)",
-    borderRadius: 14,
-    overflow: "hidden",
-    background: "color-mix(in srgb, var(--paper) 92%, var(--accent) 8%)",
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 22,
+    marginTop: 8,
+    paddingTop: 22,
+    borderTop: "1px solid color-mix(in srgb, var(--accent2) 55%, transparent)",
   },
 
   ledgerItem: {
-    padding: "16px 14px",
-    textAlign: "center",
+    display: "flex",
+    flexDirection: "column",
+    gap: 4,
+    minWidth: 110,
   },
 
   ledgerNum: {
-    display: "block",
-    fontFamily: "var(--font-display)",
-    fontSize: "clamp(1.35rem, 2.5vw, 1.8rem)",
-    fontWeight: 700,
+    fontFamily: "var(--font-mono)",
+    fontSize: "clamp(1.45rem, 2.6vw, 1.9rem)",
+    fontWeight: 600,
     lineHeight: 1.1,
-    color: "var(--ink)",
+    color: "var(--accent)",
   },
 
   ledgerLabel: {
-    display: "block",
-    marginTop: 6,
-    fontFamily: "var(--font-mono)",
-    fontSize: 11,
-    letterSpacing: "0.08em",
+    fontSize: 11.5,
+    letterSpacing: "0.06em",
     textTransform: "uppercase",
     color: "var(--muted)",
   },
 
   ledgerDivider: {
     width: 1,
-    background: "var(--border)",
-    alignSelf: "stretch",
+    height: 34,
+    background: "color-mix(in srgb, var(--accent2) 55%, transparent)",
+    flexShrink: 0,
   },
 
   featuredSection: {

@@ -55,22 +55,22 @@ export default function AzadAgroStore() {
     let cancelled = false;
     async function load() {
       try {
-        const res = await window.storage.get("site-config", true);
+        const res = await window.storage.get("site-config-v2", true);
         if (!cancelled && res) setSite({ ...DEFAULT_MARKETPLACE, ...JSON.parse(res.value) });
       } catch {
-        await window.storage.set("site-config", JSON.stringify(DEFAULT_MARKETPLACE), true).catch(() => {});
+        await window.storage.set("site-config-v2", JSON.stringify(DEFAULT_MARKETPLACE), true).catch(() => {});
       }
       try {
-        const res = await window.storage.get("manufacturers", true);
+        const res = await window.storage.get("manufacturers-v2", true);
         if (!cancelled && res) setManufacturers(JSON.parse(res.value));
       } catch {
-        await window.storage.set("manufacturers", JSON.stringify(DEFAULT_MANUFACTURERS), true).catch(() => {});
+        await window.storage.set("manufacturers-v2", JSON.stringify(DEFAULT_MANUFACTURERS), true).catch(() => {});
       }
       try {
-        const res = await window.storage.get("theme", true);
+        const res = await window.storage.get("theme-v2", true);
         if (!cancelled && res) setTheme({ ...DEFAULT_THEME, ...JSON.parse(res.value) });
       } catch {
-        await window.storage.set("theme", JSON.stringify(DEFAULT_THEME), true).catch(() => {});
+        await window.storage.set("theme-v2", JSON.stringify(DEFAULT_THEME), true).catch(() => {});
       }
       try {
         const res = await window.storage.get("account", false);
@@ -94,7 +94,7 @@ export default function AzadAgroStore() {
   const saveSite = useCallback(async (next) => {
     setSite(next);
     try {
-      await window.storage.set("site-config", JSON.stringify(next), true);
+      await window.storage.set("site-config-v2", JSON.stringify(next), true);
       flash("Saved");
     } catch {
       flash("Save failed — try again");
@@ -105,7 +105,7 @@ export default function AzadAgroStore() {
     setSite((prev) => {
       const next = { ...prev, copy: { ...prev.copy, [key]: val } };
       window.storage
-        .set("site-config", JSON.stringify(next), true)
+        .set("site-config-v2", JSON.stringify(next), true)
         .then(() => flash("Saved"))
         .catch(() => flash("Save failed — try again"));
       return next;
@@ -115,7 +115,7 @@ export default function AzadAgroStore() {
   const saveManufacturers = useCallback(async (next) => {
     setManufacturers(next);
     try {
-      await window.storage.set("manufacturers", JSON.stringify(next), true);
+      await window.storage.set("manufacturers-v2", JSON.stringify(next), true);
       flash("Saved");
     } catch {
       flash("Save failed — try again");
@@ -128,7 +128,7 @@ export default function AzadAgroStore() {
         m.id === mid ? { ...m, ...(typeof updater === "function" ? updater(m) : updater) } : m
       );
       window.storage
-        .set("manufacturers", JSON.stringify(next), true)
+        .set("manufacturers-v2", JSON.stringify(next), true)
         .then(() => flash("Saved"))
         .catch(() => flash("Save failed — try again"));
       return next;
@@ -141,7 +141,7 @@ export default function AzadAgroStore() {
     if (themeSaveTimer.current) clearTimeout(themeSaveTimer.current);
     themeSaveTimer.current = setTimeout(async () => {
       try {
-        await window.storage.set("theme", JSON.stringify(next), true);
+        await window.storage.set("theme-v2", JSON.stringify(next), true);
         flash("Saved");
       } catch {
         flash("Save failed — try again");
@@ -158,7 +158,7 @@ export default function AzadAgroStore() {
       if (themeSaveTimer.current) clearTimeout(themeSaveTimer.current);
       themeSaveTimer.current = setTimeout(async () => {
         try {
-          await window.storage.set("theme", JSON.stringify(next), true);
+          await window.storage.set("theme-v2", JSON.stringify(next), true);
           flash("Saved");
         } catch {
           flash("Save failed — try again");
@@ -371,17 +371,18 @@ export default function AzadAgroStore() {
         @import url('${googleFontsUrl}');
         :root {
           --paper: ${theme.colors.paper};
-          --paper-alt: color-mix(in srgb, var(--paper) 88%, white 12%);
+          --paper-alt: color-mix(in srgb, var(--paper) 92%, var(--ink) 8%);
           --ink: ${theme.colors.ink};
-          --ink-soft: color-mix(in srgb, var(--ink) 88%, black 12%);
+          --ink-soft: color-mix(in srgb, var(--ink) 88%, var(--paper) 12%);
           --accent: ${theme.colors.accent};
           --accent2: ${theme.colors.accent2};
-          --accent2-tint: color-mix(in srgb, var(--accent2) 14%, var(--paper) 86%);
+          --accent2-tint: color-mix(in srgb, var(--accent2) 18%, var(--paper) 82%);
           --danger: ${theme.colors.danger};
-          --border: color-mix(in srgb, var(--ink) 22%, var(--paper) 78%);
-          --muted: color-mix(in srgb, var(--ink) 62%, var(--paper) 38%);
-          --muted-light: color-mix(in srgb, var(--paper) 82%, white 18%);
-          --divider: color-mix(in srgb, var(--paper) 90%, var(--ink) 10%);
+          --border: color-mix(in srgb, var(--ink) 16%, var(--paper) 84%);
+          --muted: color-mix(in srgb, var(--ink) 68%, var(--paper) 32%);
+          --muted-light: color-mix(in srgb, var(--ink) 78%, var(--paper) 22%);
+          --divider: color-mix(in srgb, var(--ink) 12%, var(--paper) 88%);
+          --surface: color-mix(in srgb, var(--paper) 88%, black 12%);
           --font-display: '${dFont.family}', serif;
           --font-display-style: ${dFont.style};
           --font-body: '${bFont.family}', sans-serif;
@@ -390,15 +391,22 @@ export default function AzadAgroStore() {
         }
         * { box-sizing: border-box; }
         ::selection { background: color-mix(in srgb, var(--accent) 35%, transparent); }
-        body, .aa-app-root { font-family: var(--font-body); }
-        .aa-btn { transition: transform .15s ease, box-shadow .15s ease; }
+        body, .aa-app-root { font-family: var(--font-body); background: var(--paper); color: var(--ink); }
+        .aa-app-root {
+          background-image:
+            radial-gradient(ellipse 900px 480px at 12% -8%, color-mix(in srgb, var(--accent2) 22%, transparent), transparent 70%),
+            radial-gradient(ellipse 700px 420px at 88% 8%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 65%),
+            linear-gradient(180deg, color-mix(in srgb, var(--paper) 92%, black 8%) 0%, var(--paper) 38%, var(--paper) 100%);
+          background-attachment: fixed;
+        }
+        .aa-btn { transition: transform .15s ease, box-shadow .15s ease, background .15s ease; }
         .aa-btn:hover { transform: translateY(-1px); }
         .aa-btn:active { transform: translateY(0); }
-        .aa-card { transition: transform .2s ease, box-shadow .2s ease; position: relative; }
-        .aa-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px color-mix(in srgb, var(--ink) 14%, transparent); }
+        .aa-card { transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; position: relative; }
+        .aa-card:hover { transform: translateY(-3px); box-shadow: 0 14px 32px color-mix(in srgb, black 28%, transparent); border-color: color-mix(in srgb, var(--accent) 35%, var(--border)); }
         input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent2); outline-offset: 1px; }
         button:focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; }
-        .aa-editable { border: 1px dashed color-mix(in srgb, var(--accent) 60%, transparent); border-radius: 6px; background: color-mix(in srgb, var(--accent) 8%, transparent); }
+        .aa-editable { border: 1px dashed color-mix(in srgb, var(--accent) 55%, transparent); border-radius: 8px; background: color-mix(in srgb, var(--accent) 10%, transparent); }
         input[type="color"] { -webkit-appearance: none; appearance: none; border: none; padding: 0; width: 44px; height: 34px; border-radius: 8px; cursor: pointer; background: none; }
         input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
         input[type="color"]::-webkit-color-swatch { border: 1px solid var(--border); border-radius: 8px; }

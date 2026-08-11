@@ -3,6 +3,7 @@ import { s } from "../styles";
 import { EditableText } from "./EditableText";
 import { ImageCropper } from "./ImageCropper";
 import { Modal } from "./Modal";
+import { Icon } from "./Icon";
 
 export function CoverPhotoBlock({
   photo,
@@ -35,16 +36,19 @@ export function CoverPhotoBlock({
           <img src={photo} alt="" style={s.farmPhotoImg} />
         ) : (
           <div style={s.farmPhotoPlaceholder}>
-            {isAdmin ? placeholder : "No photo yet"}
+            <div style={{ color: "var(--accent2)" }}>
+              <Icon name="leaf" size={42} />
+            </div>
+            <span>{isAdmin ? "No photo yet" : "No photo yet"}</span>
           </div>
         )}
       </div>
 
       {isAdmin && (
-        <div style={{ ...s.uploadRow, justifyContent: "center", marginTop: 10 }}>
+        <div style={{ ...s.uploadRow, justifyContent: "center", marginTop: 12 }}>
           <input ref={fileRef} type="file" accept="image/*" hidden onChange={onFile} />
-          <button type="button" style={s.uploadBtn} onClick={openPicker}>
-            {photo ? "Replace photo" : "Upload photo"}
+          <button type="button" className="aa-btn" style={s.uploadBtn} onClick={openPicker}>
+            📷 {photo ? "Change photo" : "Upload photo"}
           </button>
           {photo && (
             <button type="button" style={s.removePhotoBtn} onClick={() => onPhotoChange?.("")}>
@@ -55,15 +59,15 @@ export function CoverPhotoBlock({
       )}
 
       {(caption || isAdmin) && (
-        <p style={s.farmPhotoCaption}>
+        <div style={s.farmPhotoCaption}>
           <EditableText
             id="txt38"
             isAdmin={isAdmin}
-            value={caption || ""}
+            value={caption || placeholder}
             onSave={onCaptionChange}
-            textStyle={{ fontFamily: "inherit", fontSize: "inherit", color: "inherit", letterSpacing: "inherit" }}
+            textStyle={{ fontFamily: "inherit", fontSize: "inherit", color: "inherit", fontStyle: "inherit" }}
           />
-        </p>
+        </div>
       )}
 
       {cropSource && (
@@ -71,7 +75,7 @@ export function CoverPhotoBlock({
           <ImageCropper
             source={cropSource}
             aspect={4 / 3}
-            onComplete={onCropComplete}
+            onConfirm={onCropComplete}
             onCancel={() => setCropSource(null)}
           />
         </Modal>

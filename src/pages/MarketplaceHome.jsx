@@ -4,7 +4,7 @@ import { EditableText } from "../components/EditableText";
 import { CoverPhotoBlock } from "../components/CoverPhotoBlock";
 
 /**
- * Homepage is branding-only (no shopping CTAs), matching the seed handoff.
+ * Homepage is branding-only: brand as hero, one supporting line, ledger stats, one visual.
  */
 export function MarketplaceHome({ marketplace, isAdmin = false, onUpdateMarketplace }) {
   const set = (field, value) => {
@@ -14,8 +14,19 @@ export function MarketplaceHome({ marketplace, isAdmin = false, onUpdateMarketpl
   return (
     <main>
       <section style={s.hero}>
+        <div
+          className="aa-hero-atmosphere"
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            pointerEvents: "none",
+            background:
+              "radial-gradient(ellipse 70% 55% at 18% 20%, color-mix(in srgb, var(--accent2) 18%, transparent), transparent 70%)",
+          }}
+        />
         <div className="aa-hero-grid" style={s.heroGrid}>
-          <div>
+          <div className="aa-hero-copy">
             <EditableText
               id="txt21"
               isAdmin={isAdmin}
@@ -68,13 +79,13 @@ export function MarketplaceHome({ marketplace, isAdmin = false, onUpdateMarketpl
                       textStyle={s.ledgerLabel}
                     />
                   </div>
-                  {n < 3 && <div style={s.ledgerDivider} />}
+                  {n < 3 && <div style={s.ledgerDivider} aria-hidden="true" />}
                 </React.Fragment>
               ))}
             </div>
           </div>
 
-          <div style={s.homeManufacturerPreview}>
+          <div className="aa-hero-visual" style={s.homeManufacturerPreview}>
             <CoverPhotoBlock
               isAdmin={isAdmin}
               photo={marketplace.heroPhoto}

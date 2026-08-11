@@ -55,12 +55,12 @@ export const DEFAULT_MANUFACTURERS = [
 ];
 
 export const DEFAULT_MARKETPLACE = {
-  title: "Field & Ledger",
+  title: "Indias Organic Marketplace",
   headerLogo: "",
-  tagline: "a marketplace of organic manufacturers",
+  tagline: "A marketplace of organic manufacturers",
   ledgerLine: "ENTRY №01 — MARKETPLACE LEDGER",
-  heroLine1: "Many farms.",
-  heroLine2: "One honest shelf.",
+  heroLine1: "Indias Organic",
+  heroLine2: "Marketplace",
   heroText: "Every manufacturer here sells direct, under their own name, with their own story. Browse the directory, pick a manufacturer, and see exactly who grew what you're buying.",
   heroPhoto: "",
   heroPhotoCaption: "Add a photo that represents this marketplace",
@@ -101,7 +101,7 @@ export const DEFAULT_MARKETPLACE = {
     "You're live — turn off Edit Mode any time to see exactly what buyers see",
   ],
   footerText: "A marketplace for organic manufacturers who sell direct, under their own name.",
-  contactEmail: "hello@fieldandledger.market",
+  contactEmail: "hello@indiasorganic.market",
   contactPhone: "+91 98765 43210",
   footerBottomText: "Every manufacturer, verified.",
   copy: {
