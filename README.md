@@ -27,7 +27,7 @@ npm run preview # preview the build
 4. Add your local and production URLs in Clerk → Domains / Allowed origins
 5. Restart `npm run dev`
 
-Header shows **Sign in** / **Sign up**. After signing in, Clerk’s avatar menu manages the account (including Google-linked profile). Checkout prefills the signed-in name when available.
+Header shows **Sign up**. Clicking it opens Clerk (email or Google). After signing up/in, Clerk’s avatar menu appears for account management. Checkout prefills the signed-in name when available.
 
 Owner approve/deny still uses the demo **Owner Login** passcode (separate from customer Clerk accounts).
 

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Show, SignInButton, SignUpButton, UserButton, useUser } from "@clerk/react";
+import { Show, SignUpButton, UserButton, useUser } from "@clerk/react";
 import { s } from "../styles";
 
 function displayName(user) {
@@ -33,16 +33,14 @@ export function ClerkAccountSync({ onAccount }) {
   return null;
 }
 
-/** Header auth controls: Google / email via Clerk Account Portal or modal. */
+/**
+ * Header auth: only a Sign up control when signed out.
+ * Clicking it opens Clerk (Google + email). No auth UI otherwise.
+ */
 export function ClerkAccountControls() {
   return (
     <div style={s.authControls}>
       <Show when="signed-out">
-        <SignInButton mode="modal">
-          <button type="button" className="aa-btn" style={s.navLink}>
-            Sign in
-          </button>
-        </SignInButton>
         <SignUpButton mode="modal">
           <button type="button" className="aa-btn" style={s.signUpBtn}>
             Sign up
@@ -71,8 +69,8 @@ export function ClerkAccountControls() {
 /** Shown when Clerk is not configured yet (missing publishable key). */
 export function ClerkMissingKeyControls({ onOpenHelp }) {
   return (
-    <button type="button" className="aa-btn" style={s.navLink} onClick={onOpenHelp}>
-      Sign in
+    <button type="button" className="aa-btn" style={s.signUpBtn} onClick={onOpenHelp}>
+      Sign up
     </button>
   );
 }
