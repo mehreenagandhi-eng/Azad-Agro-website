@@ -99,11 +99,21 @@ export function bindPersistenceLifecycle() {
 }
 
 export function mergeSite(defaults, saved) {
-  if (!saved || typeof saved !== "object") return { ...defaults, copy: { ...defaults.copy } };
+  if (!saved || typeof saved !== "object") {
+    return {
+      ...defaults,
+      copy: { ...defaults.copy },
+      customTextSections: { ...(defaults.customTextSections || {}) },
+    };
+  }
   return {
     ...defaults,
     ...saved,
     copy: { ...(defaults.copy || {}), ...(saved.copy || {}) },
+    customTextSections: {
+      ...(defaults.customTextSections || {}),
+      ...(saved.customTextSections || {}),
+    },
   };
 }
 

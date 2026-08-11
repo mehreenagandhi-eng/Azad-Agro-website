@@ -6,6 +6,7 @@ import { ProductCard } from "../components/ProductCard";
 import { CoverPhotoBlock } from "../components/CoverPhotoBlock";
 import { RemovableSection, isSectionVisible } from "../components/RemovableSection";
 import { SectionColorAnchor, SectionColorControl } from "../components/SectionColorControl";
+import { CustomTextSections } from "../components/CustomTextSections";
 const TABS = [
   { id: "order", labelKey: "orderNowLabel", fallback: "Order Now" },
   { id: "story", labelKey: "ourStoryLabel", fallback: "Our Story" },
@@ -265,6 +266,13 @@ export function ManufacturerPage({
                 </>
               )}
             </RemovableSection>
+
+            <CustomTextSections
+              isAdmin={isAdmin}
+              sections={manufacturer.customTextSections || []}
+              onChange={(next) => setMfg("customTextSections", next)}
+              addLabel="+ Add text section"
+            />
           </>
         )}
 

@@ -2,6 +2,7 @@ import React from "react";
 import { s } from "../styles";
 import { EditableText } from "../components/EditableText";
 import { SectionColorAnchor, SectionColorControl } from "../components/SectionColorControl";
+import { CustomTextSections } from "../components/CustomTextSections";
 
 function StepSection({
   heading,
@@ -150,6 +151,17 @@ export function GetStartedPage({
             {copy.addManufacturerLabel || "+ Add manufacturer"}
           </button>
         )}
+
+        <CustomTextSections
+          isAdmin={isAdmin}
+          sections={marketplace.customTextSections?.getstarted || []}
+          onChange={(next) =>
+            set("customTextSections", {
+              ...(marketplace.customTextSections || {}),
+              getstarted: next,
+            })
+          }
+        />
       </div>
     </>
   );

@@ -3,6 +3,7 @@ import { s } from "../styles";
 import { Icon } from "../components/Icon";
 import { EditableText } from "../components/EditableText";
 import { SectionColorAnchor, SectionColorControl } from "../components/SectionColorControl";
+import { CustomTextSections } from "../components/CustomTextSections";
 
 export function ManufacturerCard({
   mfg,
@@ -163,6 +164,17 @@ export function ManufacturerDirectory({
             </div>
           </div>
         )}
+
+        <CustomTextSections
+          isAdmin={isAdmin}
+          sections={marketplace.customTextSections?.directory || []}
+          onChange={(next) =>
+            set("customTextSections", {
+              ...(marketplace.customTextSections || {}),
+              directory: next,
+            })
+          }
+        />
       </div>
     </>
   );

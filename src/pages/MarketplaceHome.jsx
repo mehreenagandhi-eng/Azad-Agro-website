@@ -3,9 +3,10 @@ import { s } from "../styles";
 import { EditableText } from "../components/EditableText";
 import { CoverPhotoBlock } from "../components/CoverPhotoBlock";
 import { SectionColorAnchor } from "../components/SectionColorControl";
+import { CustomTextSections } from "../components/CustomTextSections";
 
 /**
- * Homepage is branding-only: brand as hero, one supporting line, ledger stats, one visual.
+ * Homepage: brand-forward hero, then optional custom text sections below.
  */
 export function MarketplaceHome({ marketplace, isAdmin = false, onUpdateMarketplace }) {
   const set = (field, value) => {
@@ -98,6 +99,19 @@ export function MarketplaceHome({ marketplace, isAdmin = false, onUpdateMarketpl
           </div>
         </div>
       </SectionColorAnchor>
+
+      <div style={s.pageBody}>
+        <CustomTextSections
+          isAdmin={isAdmin}
+          sections={marketplace.customTextSections?.home || []}
+          onChange={(next) =>
+            set("customTextSections", {
+              ...(marketplace.customTextSections || {}),
+              home: next,
+            })
+          }
+        />
+      </div>
     </main>
   );
 }

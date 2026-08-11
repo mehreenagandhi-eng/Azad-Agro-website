@@ -51,6 +51,7 @@ export const DEFAULT_MANUFACTURERS = [
     contactAddress: "Azad Agro Farm, Near Ring Road, Nashik, Maharashtra, India",
     deliveryInfo: "Free delivery on orders above ₹999. Cash on delivery available across India. Most orders ship within 2–3 days of the order being packed.",
     products: AZAD_AGRO_PRODUCTS,
+    customTextSections: [],
   },
 ];
 
@@ -152,6 +153,12 @@ export const DEFAULT_MARKETPLACE = {
     contactInfoLabel: "Contact Information",
     footerContactHeading: "Contact",
     footerDeliveryHeading: "About this marketplace",
+  },
+  customTextSections: {
+    home: [],
+    directory: [],
+    mission: [],
+    getstarted: [],
   },
 };
 

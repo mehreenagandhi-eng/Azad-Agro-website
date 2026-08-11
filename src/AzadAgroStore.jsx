@@ -1084,6 +1084,7 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
                     contactAddress: "",
                     deliveryInfo: "",
                     products: [],
+                    customTextSections: [],
                   }
                 : editingManufacturer
             }

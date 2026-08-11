@@ -2141,4 +2141,29 @@ export const s = {
     fontSize: 13,
     lineHeight: 1.55,
   },
+
+  customTextSectionsWrap: {
+    display: "grid",
+    gap: 16,
+    marginTop: 28,
+  },
+
+  customTextSection: {
+    padding: "18px 18px 20px",
+    borderRadius: 14,
+    border: "1px solid color-mix(in srgb, var(--border) 85%, transparent)",
+  },
+
+  customTextSectionAdmin: {
+    border: "1px dashed color-mix(in srgb, var(--accent) 40%, var(--border))",
+  },
+
+  customTextSectionToolbar: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gap: 8,
+    marginBottom: 10,
+    flexWrap: "wrap",
+  },
 };

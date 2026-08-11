@@ -3,6 +3,7 @@ import { s } from "../styles";
 import { EditableText, EditableList } from "../components/EditableText";
 import { RemovableSection, isSectionVisible } from "../components/RemovableSection";
 import { SectionColorAnchor, SectionColorControl } from "../components/SectionColorControl";
+import { CustomTextSections } from "../components/CustomTextSections";
 
 export function MissionPage({
   marketplace,
@@ -17,6 +18,13 @@ export function MissionPage({
 
   const set = (field, value) => {
     if (onUpdateMarketplace) onUpdateMarketplace({ ...marketplace, [field]: value });
+  };
+
+  const setCustomSections = (next) => {
+    set("customTextSections", {
+      ...(marketplace.customTextSections || {}),
+      mission: next,
+    });
   };
 
   return (
@@ -83,6 +91,12 @@ export function MissionPage({
             </>
           )}
         </RemovableSection>
+
+        <CustomTextSections
+          isAdmin={isAdmin}
+          sections={marketplace.customTextSections?.mission || []}
+          onChange={setCustomSections}
+        />
       </div>
     </>
   );
