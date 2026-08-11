@@ -12,6 +12,7 @@ import {
   ClerkMissingKeyControls,
 } from "./components/ClerkAccountControls";
 import { ClerkSetupHelpModal } from "./components/ClerkAccountModal";
+import { SettingsModal } from "./components/SettingsModal";
 import { ProductEditModal } from "./components/ProductEditModal";
 import { ManufacturerEditModal } from "./components/ManufacturerEditModal";
 import { OwnerLoginModal } from "./components/OwnerLoginModal";
@@ -31,6 +32,7 @@ import {
   uid,
 } from "./data/defaults";
 import { DEFAULT_THEME, SECTION_DEFS, sectionValue } from "./data/themes";
+import { enrichOrder, refreshOrderStatus } from "./data/orders";
 import { buildGoogleFontsUrl, findFont } from "./data/fonts";
 import { s } from "./styles";
 import { Icon } from "./components/Icon";
@@ -73,7 +75,12 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
   const [showTheme, setShowTheme] = useState(false);
   const [showOwnerLogin, setShowOwnerLogin] = useState(false);
   const [showClerkHelp, setShowClerkHelp] = useState(false);
-  const [account, setAccount] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [account, setAccount] = useState(() => readJson(localKey("account"), null));
+  const [orders, setOrders] = useState(() => {
+    const saved = readJson(sharedKey("orders-v1"), []);
+    return Array.isArray(saved) ? saved.map(refreshOrderStatus) : [];
+  });
   const [ownerLoginError, setOwnerLoginError] = useState("");
   const [savedFlash, setSavedFlash] = useState("");
   const [editingProduct, setEditingProduct] = useState(null);
@@ -334,10 +341,52 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
   }
 
   function placeOrder(payload) {
-    setOrder(payload);
+    const enriched = enrichOrder({
+      ...payload,
+      accountEmail: account?.email || payload.email || "",
+      accountName: account?.name || payload.name || "",
+      email: account?.email || payload.email || "",
+    });
+    setOrder(enriched);
+    setOrders((prev) => {
+      const next = [enriched, ...prev.filter((o) => o.id !== enriched.id)].map(refreshOrderStatus);
+      writeJson(sharedKey("orders-v1"), next);
+      window.storage.set("orders-v1", JSON.stringify(next), true).catch(() => {});
+      return next;
+    });
     setCart({});
     setView("confirmed");
   }
+
+  const saveAccountProfile = useCallback((next) => {
+    const cleaned = {
+      name: String(next?.name || "").trim(),
+      email: String(next?.email || "").trim(),
+      imageUrl: next?.imageUrl || account?.imageUrl || "",
+      clerkUserId: next?.clerkUserId || account?.clerkUserId || "",
+    };
+    setAccount(cleaned);
+    writeJson(localKey("account"), cleaned);
+    flash("Account saved");
+  }, [account]);
+
+  const signInLocal = useCallback((name, email) => {
+    const next = { name, email, imageUrl: "", clerkUserId: "" };
+    setAccount(next);
+    writeJson(localKey("account"), next);
+    flash("Signed in");
+  }, []);
+
+  const signOutLocal = useCallback(() => {
+    setAccount(null);
+    writeJson(localKey("account"), null);
+    try {
+      localStorage.removeItem(localKey("account"));
+    } catch {
+      /* ignore */
+    }
+    flash("Signed out");
+  }, []);
 
   function saveProduct(p) {
     if (!activeManufacturer) return;
@@ -388,7 +437,21 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
   }
 
   const onClerkAccount = useCallback((next) => {
+    if (!next) {
+      // Keep local profile if Clerk signed out but user had a local email — clear clerk id only
+      setAccount((prev) => {
+        if (!prev) return null;
+        if (prev.clerkUserId) {
+          const cleared = { ...prev, clerkUserId: "" };
+          writeJson(localKey("account"), cleared);
+          return cleared;
+        }
+        return prev;
+      });
+      return;
+    }
     setAccount(next);
+    writeJson(localKey("account"), next);
   }, []);
 
   function goToManufacturer(mid) {
@@ -679,6 +742,17 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
 
             <button
               className="aa-btn"
+              style={{ ...s.navLink, position: "relative" }}
+              onClick={() => setShowSettings(true)}
+              aria-label="Settings"
+              title="Settings"
+            >
+              Settings
+              {account ? <span style={s.accountDot} aria-hidden="true" /> : null}
+            </button>
+
+            <button
+              className="aa-btn"
               style={s.cartBtn}
               onClick={() => setCartOpen(true)}
               aria-label={`Cart, ${cartCount} items`}
@@ -946,6 +1020,22 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
         )}
 
         {!clerkEnabled && showClerkHelp && <ClerkSetupHelpModal onClose={() => setShowClerkHelp(false)} />}
+
+        {showSettings && (
+          <SettingsModal
+            clerkEnabled={clerkEnabled}
+            account={account}
+            orders={orders.filter((o) => {
+              if (!account?.email) return true;
+              const email = (o.accountEmail || o.email || "").toLowerCase();
+              return !email || email === account.email.toLowerCase();
+            })}
+            onSignIn={signInLocal}
+            onSignOut={clerkEnabled ? undefined : signOutLocal}
+            onSaveProfile={saveAccountProfile}
+            onClose={() => setShowSettings(false)}
+          />
+        )}
 
         {editingProduct && activeManufacturer && (
           <ProductEditModal

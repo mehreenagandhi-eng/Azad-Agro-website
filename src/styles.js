@@ -484,17 +484,14 @@ export const s = {
   },
 
   accountDot: {
-    width: 34,
-    height: 34,
+    position: "absolute",
+    top: 6,
+    right: 6,
+    width: 8,
+    height: 8,
     borderRadius: 999,
-    border: "1px solid var(--border)",
-    background: "color-mix(in srgb, var(--accent2) 16%, var(--paper))",
-    color: "var(--ink)",
-    display: "grid",
-    placeItems: "center",
-    fontSize: 13,
-    fontWeight: 700,
-    cursor: "pointer",
+    background: "var(--accent)",
+    boxShadow: "0 0 0 2px color-mix(in srgb, var(--paper) 70%, transparent)",
   },
 
   authControls: {
@@ -2055,5 +2052,93 @@ export const s = {
     color: "var(--muted)",
     fontFamily: "var(--font-mono)",
     letterSpacing: "0.03em",
+  },
+
+  settingsOrderList: {
+    display: "grid",
+    gap: 12,
+  },
+
+  settingsOrderCard: {
+    border: "1px solid var(--border)",
+    borderRadius: 14,
+    padding: "14px 14px 12px",
+    background: "color-mix(in srgb, var(--paper) 94%, var(--accent2) 6%)",
+  },
+
+  settingsOrderHead: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: 12,
+    marginBottom: 12,
+  },
+
+  settingsOrderId: {
+    margin: 0,
+    fontFamily: "var(--font-mono)",
+    fontSize: 13,
+    fontWeight: 700,
+    letterSpacing: "0.04em",
+  },
+
+  settingsOrderMeta: {
+    margin: "4px 0 0",
+    color: "var(--muted)",
+    fontSize: 12.5,
+  },
+
+  settingsOrderStatus: {
+    display: "inline-flex",
+    alignItems: "center",
+    padding: "5px 10px",
+    borderRadius: 999,
+    fontSize: 11.5,
+    fontWeight: 700,
+    fontFamily: "var(--font-mono)",
+    letterSpacing: "0.04em",
+    textTransform: "uppercase",
+    background: "color-mix(in srgb, var(--accent) 18%, var(--paper))",
+    color: "var(--ink)",
+    border: "1px solid color-mix(in srgb, var(--accent) 40%, var(--border))",
+    whiteSpace: "nowrap",
+  },
+
+  settingsOrderGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: 10,
+    marginBottom: 10,
+  },
+
+  settingsOrderLabel: {
+    margin: 0,
+    fontSize: 11.5,
+    color: "var(--muted)",
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+    fontFamily: "var(--font-mono)",
+  },
+
+  settingsOrderValue: {
+    margin: "3px 0 0",
+    fontSize: 13.5,
+    fontWeight: 600,
+    lineHeight: 1.35,
+  },
+
+  settingsOrderShip: {
+    margin: "0 0 8px",
+    fontSize: 13,
+    color: "var(--muted)",
+    lineHeight: 1.5,
+  },
+
+  settingsOrderItems: {
+    margin: 0,
+    paddingLeft: 18,
+    color: "var(--ink)",
+    fontSize: 13,
+    lineHeight: 1.55,
   },
 };
