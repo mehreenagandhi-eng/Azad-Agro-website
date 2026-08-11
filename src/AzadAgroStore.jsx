@@ -204,6 +204,10 @@ export default function AzadAgroStore() {
     });
   }, [persistTheme]);
 
+  useEffect(() => {
+    if (!isAdmin) setActiveColorSection(null);
+  }, [isAdmin]);
+
   const themeEditValue = useMemo(
     () => ({
       isAdmin,
