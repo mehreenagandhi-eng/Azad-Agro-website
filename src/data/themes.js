@@ -96,13 +96,16 @@ export const DEFAULT_THEME = { ...THEME_PRESETS[0], sections: {}, textOverrides:
 export const SECTION_DEFS = [
   { id: "header", label: "Header & navigation" },
   { id: "hero", label: "Hero banner (Home)" },
-  { id: "contentpages", label: "Manufacturers / Mission / Get Started banners" },
-  { id: "mfgtabs", label: "Manufacturer page tabs (Our Story / Order Now / Contact)" },
+  { id: "contentpages", label: "Page banners (Manufacturers / Mission / Get Started)" },
+  { id: "contentpanels", label: "Content list boxes (mission points, steps)" },
+  { id: "directory", label: "Manufacturer directory cards" },
+  { id: "mfgtabs", label: "Manufacturer page tabs" },
   { id: "quicknav", label: "Category quick-nav" },
   { id: "featured", label: "Featured products section" },
   { id: "cards", label: "Product cards" },
+  { id: "contact", label: "Contact panels" },
   { id: "drawer", label: "Cart drawer" },
-  { id: "checkout", label: "Checkout page" },
+  { id: "checkout", label: "Checkout panels" },
   { id: "footer", label: "Footer" },
 ];
 

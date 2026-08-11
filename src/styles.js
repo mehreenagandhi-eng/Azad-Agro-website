@@ -123,7 +123,7 @@ export const s = {
 
   navLink: {
     border: "1px solid color-mix(in srgb, var(--accent2) 45%, var(--border))",
-    background: "transparent",
+    background: "var(--header-box, transparent)",
     color: "var(--header-text, var(--ink))",
     fontFamily: "var(--font-body)",
     fontSize: 13.5,
@@ -144,7 +144,7 @@ export const s = {
   pageBanner: {
     borderBottom: "1px solid var(--border)",
     background:
-      "linear-gradient(165deg, color-mix(in srgb, var(--surface, var(--paper)) 70%, black 30%) 0%, color-mix(in srgb, var(--accent2) 14%, var(--paper)) 48%, var(--paper) 100%)",
+      "var(--contentpages-bg, linear-gradient(165deg, color-mix(in srgb, var(--surface, var(--paper)) 70%, black 30%) 0%, color-mix(in srgb, var(--accent2) 14%, var(--paper)) 48%, var(--paper) 100%))",
     color: "var(--contentpages-text, var(--ink))",
   },
 
@@ -156,17 +156,18 @@ export const s = {
 
   pageHeading: {
     margin: "10px 0 0",
-    fontFamily: "var(--font-display)",
+    fontFamily: "var(--contentpages-font, var(--font-display))",
     fontSize: "clamp(1.8rem, 4vw, 2.6rem)",
     lineHeight: 1.1,
     fontWeight: 600,
     letterSpacing: "-0.02em",
+    color: "var(--contentpages-text, var(--ink))",
   },
 
   pageIntro: {
     margin: "12px 0 0",
     maxWidth: 720,
-    color: "var(--muted)",
+    color: "var(--contentpages-text, var(--muted))",
     fontSize: "1.02rem",
     lineHeight: 1.65,
   },
@@ -267,7 +268,8 @@ export const s = {
     padding: "12px 14px",
     borderRadius: 12,
     border: "1px solid var(--border)",
-    background: "color-mix(in srgb, var(--paper) 94%, var(--accent2) 6%)",
+    background: "var(--contentpanels-box, var(--contentpanels-bg, color-mix(in srgb, var(--paper) 94%, var(--accent2) 6%)))",
+    color: "var(--contentpanels-text, var(--ink))",
   },
 
   stepNum: {
@@ -287,7 +289,7 @@ export const s = {
   stepText: {
     margin: 0,
     lineHeight: 1.6,
-    color: "var(--ink)",
+    color: "var(--contentpanels-text, var(--ink))",
     paddingTop: 4,
   },
 
@@ -318,7 +320,8 @@ export const s = {
     padding: "10px 12px",
     borderRadius: 10,
     border: "1px solid color-mix(in srgb, var(--border) 80%, transparent)",
-    background: "color-mix(in srgb, var(--paper) 96%, var(--accent2) 4%)",
+    background: "var(--contentpanels-box, var(--contentpanels-bg, color-mix(in srgb, var(--paper) 96%, var(--accent2) 4%)))",
+    color: "var(--contentpanels-text, var(--ink))",
   },
 
   bulletDot: {
@@ -333,7 +336,7 @@ export const s = {
   bulletText: {
     margin: 0,
     lineHeight: 1.6,
-    color: "var(--ink)",
+    color: "var(--contentpanels-text, var(--ink))",
   },
 
   listRemoveBtn: {
@@ -383,7 +386,8 @@ export const s = {
     padding: "18px 18px 20px",
     borderRadius: 14,
     border: "1px solid var(--border)",
-    background: "color-mix(in srgb, var(--paper) 94%, var(--accent) 6%)",
+    background: "var(--contact-box, color-mix(in srgb, var(--paper) 94%, var(--accent) 6%))",
+    color: "var(--contact-text, var(--ink))",
   },
 
   contactRow: {
@@ -396,7 +400,7 @@ export const s = {
   contactText: {
     margin: 0,
     lineHeight: 1.55,
-    color: "var(--ink)",
+    color: "var(--contact-text, var(--ink))",
     wordBreak: "break-word",
   },
 
@@ -404,7 +408,8 @@ export const s = {
     padding: "18px 18px 20px",
     borderRadius: 14,
     border: "1px solid var(--border)",
-    background: "var(--paper)",
+    background: "var(--contact-box, var(--contact-bg, var(--paper)))",
+    color: "var(--contact-text, var(--ink))",
     boxShadow: "0 10px 30px color-mix(in srgb, var(--ink) 6%, transparent)",
   },
 
@@ -509,7 +514,8 @@ export const s = {
     top: 72,
     zIndex: 40,
     borderBottom: "1px solid var(--border)",
-    background: "color-mix(in srgb, var(--paper) 90%, transparent)",
+    background: "var(--quicknav-bg, color-mix(in srgb, var(--paper) 90%, transparent))",
+    color: "var(--quicknav-text, var(--ink))",
     backdropFilter: "blur(8px)",
   },
 
@@ -518,7 +524,8 @@ export const s = {
     top: 72,
     zIndex: 40,
     borderBottom: "1px solid var(--border)",
-    background: "color-mix(in srgb, var(--paper) 90%, transparent)",
+    background: "var(--mfgtabs-bg, color-mix(in srgb, var(--paper) 90%, transparent))",
+    color: "var(--mfgtabs-text, var(--ink))",
     backdropFilter: "blur(8px)",
   },
 
@@ -533,8 +540,8 @@ export const s = {
 
   mfgSubNavPill: {
     border: "1px solid var(--border)",
-    background: "var(--paper)",
-    color: "var(--muted)",
+    background: "var(--mfgtabs-box, var(--paper))",
+    color: "var(--mfgtabs-text, var(--muted))",
     borderRadius: 999,
     padding: "8px 14px",
     fontSize: 13,
@@ -544,8 +551,8 @@ export const s = {
 
   mfgSubNavPillActive: {
     border: "1px solid color-mix(in srgb, var(--accent) 45%, var(--border))",
-    background: "color-mix(in srgb, var(--accent) 14%, var(--paper))",
-    color: "var(--ink)",
+    background: "color-mix(in srgb, var(--accent) 14%, var(--mfgtabs-box, var(--paper)))",
+    color: "var(--mfgtabs-text, var(--ink))",
   },
 
   quickNavInner: {
@@ -560,8 +567,8 @@ export const s = {
 
   quickNavPill: {
     border: "1px solid var(--border)",
-    background: "var(--paper)",
-    color: "var(--muted)",
+    background: "var(--quicknav-box, var(--paper))",
+    color: "var(--quicknav-text, var(--muted))",
     borderRadius: 999,
     padding: "8px 14px",
     fontSize: 13,
@@ -572,8 +579,8 @@ export const s = {
 
   quickNavPillActive: {
     border: "1px solid color-mix(in srgb, var(--accent2) 45%, var(--border))",
-    background: "color-mix(in srgb, var(--accent2) 14%, var(--paper))",
-    color: "var(--ink)",
+    background: "color-mix(in srgb, var(--accent2) 14%, var(--quicknav-box, var(--paper)))",
+    color: "var(--quicknav-text, var(--ink))",
   },
 
   hero: {
@@ -624,7 +631,8 @@ export const s = {
     padding: "14px 16px",
     borderRadius: 14,
     border: "1px solid var(--border)",
-    background: "color-mix(in srgb, var(--paper) 92%, var(--accent) 8%)",
+    background: "var(--hero-box, color-mix(in srgb, var(--paper) 92%, var(--accent) 8%))",
+    color: "var(--hero-text, var(--ink))",
   },
 
   previewLogo: {
@@ -672,7 +680,8 @@ export const s = {
     padding: "22px 20px 20px",
     borderRadius: 18,
     border: "1px solid var(--border)",
-    background: "color-mix(in srgb, var(--paper) 88%, black 12%)",
+    background: "var(--directory-box, var(--directory-bg, color-mix(in srgb, var(--paper) 88%, black 12%)))",
+    color: "var(--directory-text, var(--ink))",
     boxShadow: "0 12px 28px color-mix(in srgb, black 22%, transparent)",
     minHeight: 240,
     textAlign: "center",
@@ -705,16 +714,17 @@ export const s = {
 
   mfgCardName: {
     margin: 0,
-    fontFamily: "var(--font-display)",
+    fontFamily: "var(--directory-font, var(--font-display))",
     fontSize: "1.15rem",
     fontWeight: 600,
     lineHeight: 1.2,
+    color: "var(--directory-text, var(--ink))",
   },
 
   mfgCardTagline: {
     margin: "4px 0 0",
     fontSize: 13,
-    color: "var(--muted)",
+    color: "var(--directory-text, var(--muted))",
     lineHeight: 1.45,
     flex: 1,
   },
@@ -828,7 +838,7 @@ export const s = {
     padding: 0,
     borderRadius: 22,
     overflow: "hidden",
-    background: "color-mix(in srgb, var(--paper) 70%, black 30%)",
+    background: "var(--hero-box, color-mix(in srgb, var(--paper) 70%, black 30%))",
     border: "1px solid color-mix(in srgb, var(--accent) 35%, var(--border))",
     boxShadow: "0 24px 48px color-mix(in srgb, black 35%, transparent)",
   },
@@ -883,12 +893,13 @@ export const s = {
     fontWeight: 600,
     letterSpacing: "-0.03em",
     fontStyle: "var(--font-display-style)",
+    color: "var(--hero-text, var(--ink))",
   },
 
   heroText: {
     margin: "0 0 28px",
     maxWidth: 540,
-    color: "var(--muted-light)",
+    color: "var(--hero-text, var(--muted-light))",
     fontSize: "1.05rem",
     lineHeight: 1.7,
   },
@@ -935,14 +946,20 @@ export const s = {
   featuredSection: {
     marginTop: 34,
     paddingTop: 26,
+    paddingLeft: 4,
+    paddingRight: 4,
     borderTop: "1px solid var(--border)",
+    background: "var(--featured-bg, transparent)",
+    color: "var(--featured-text, var(--ink))",
+    borderRadius: 12,
   },
 
   featuredHeading: {
     margin: "0 0 14px",
-    fontFamily: "var(--font-display)",
+    fontFamily: "var(--featured-font, var(--font-display))",
     fontSize: "1.35rem",
     fontWeight: 600,
+    color: "var(--featured-text, var(--ink))",
   },
 
   featuredGrid: {
@@ -1020,7 +1037,8 @@ export const s = {
     padding: 14,
     borderRadius: 16,
     border: "1px solid var(--border)",
-    background: "var(--paper)",
+    background: "var(--cards-box, var(--cards-bg, var(--paper)))",
+    color: "var(--cards-text, var(--ink))",
     boxShadow: "0 8px 22px color-mix(in srgb, var(--ink) 5%, transparent)",
     overflow: "hidden",
   },
@@ -1106,16 +1124,17 @@ export const s = {
 
   cardName: {
     margin: 0,
-    fontFamily: "var(--font-display)",
+    fontFamily: "var(--cards-font, var(--font-display))",
     fontSize: "1.05rem",
     fontWeight: 600,
     lineHeight: 1.25,
+    color: "var(--cards-text, var(--ink))",
   },
 
   cardNote: {
     margin: 0,
     fontSize: 13,
-    color: "var(--muted)",
+    color: "var(--cards-text, var(--muted))",
     lineHeight: 1.45,
     minHeight: 38,
   },
@@ -1251,7 +1270,8 @@ export const s = {
     right: 0,
     width: "min(420px, 100vw)",
     height: "100vh",
-    background: "var(--paper)",
+    background: "var(--drawer-bg, var(--paper))",
+    color: "var(--drawer-text, var(--ink))",
     borderLeft: "1px solid var(--border)",
     zIndex: 210,
     display: "flex",
@@ -1270,16 +1290,18 @@ export const s = {
 
   drawerTitle: {
     margin: 0,
-    fontFamily: "var(--font-display)",
+    fontFamily: "var(--drawer-font, var(--font-display))",
     fontSize: "1.2rem",
     fontWeight: 600,
+    color: "var(--drawer-text, var(--ink))",
   },
 
   cartDrawerTitle: {
     margin: 0,
-    fontFamily: "var(--font-display)",
+    fontFamily: "var(--drawer-font, var(--font-display))",
     fontSize: "1.2rem",
     fontWeight: 600,
+    color: "var(--drawer-text, var(--ink))",
   },
 
   iconBtn: {
@@ -1320,7 +1342,8 @@ export const s = {
     padding: "10px 10px",
     borderRadius: 12,
     border: "1px solid var(--border)",
-    background: "color-mix(in srgb, var(--paper) 96%, var(--accent2) 4%)",
+    background: "var(--drawer-box, color-mix(in srgb, var(--paper) 96%, var(--accent2) 4%))",
+    color: "var(--drawer-text, var(--ink))",
   },
 
   miniIcon: {
@@ -1366,7 +1389,8 @@ export const s = {
   drawerFoot: {
     borderTop: "1px solid var(--border)",
     padding: "14px 16px 18px",
-    background: "color-mix(in srgb, var(--paper) 92%, var(--accent) 8%)",
+    background: "var(--drawer-box, color-mix(in srgb, var(--paper) 92%, var(--accent) 8%))",
+    color: "var(--drawer-text, var(--ink))",
   },
 
   sumRow: {
@@ -1482,14 +1506,16 @@ export const s = {
     padding: "18px 18px 20px",
     borderRadius: 14,
     border: "1px solid var(--border)",
-    background: "var(--paper)",
+    background: "var(--checkout-box, var(--checkout-bg, var(--paper)))",
+    color: "var(--checkout-text, var(--ink))",
   },
 
   sectionTitle: {
     margin: "0 0 12px",
-    fontFamily: "var(--font-display)",
+    fontFamily: "var(--checkout-font, var(--font-display))",
     fontSize: "1.05rem",
     fontWeight: 600,
+    color: "var(--checkout-text, var(--ink))",
   },
 
   formRow: {
@@ -1656,6 +1682,22 @@ export const s = {
     marginBottom: 10,
   },
 
+  sectionFieldHint: {
+    display: "block",
+    marginTop: 2,
+    fontSize: 11.5,
+    fontWeight: 500,
+    color: "var(--muted)",
+  },
+
+  sectionColorMeta: {
+    fontSize: 12,
+    fontFamily: "var(--font-mono)",
+    color: "var(--muted)",
+    letterSpacing: "0.02em",
+    minWidth: 96,
+  },
+
   uploadRow: {
     display: "flex",
     alignItems: "center",
@@ -1750,7 +1792,8 @@ export const s = {
     padding: "16px 16px 18px",
     borderRadius: 14,
     border: "1px solid var(--border)",
-    background: "color-mix(in srgb, var(--paper) 92%, var(--accent) 8%)",
+    background: "var(--checkout-box, color-mix(in srgb, var(--paper) 92%, var(--accent) 8%))",
+    color: "var(--checkout-text, var(--ink))",
     position: "sticky",
     top: 88,
   },
@@ -1829,7 +1872,8 @@ export const s = {
 
   footer: {
     borderTop: "1px solid var(--border)",
-    background: "color-mix(in srgb, var(--ink) 4%, var(--paper))",
+    background: "var(--footer-bg, color-mix(in srgb, var(--ink) 4%, var(--paper)))",
+    color: "var(--footer-text, var(--ink))",
     marginTop: "auto",
   },
 
@@ -1843,14 +1887,15 @@ export const s = {
 
   footerHead: {
     margin: 0,
-    fontFamily: "var(--font-display)",
+    fontFamily: "var(--footer-font, var(--font-display))",
     fontSize: "1.05rem",
     fontWeight: 600,
+    color: "var(--footer-text, var(--ink))",
   },
 
   footerText: {
     margin: "6px 0 0",
-    color: "var(--muted)",
+    color: "var(--footer-text, var(--muted))",
     lineHeight: 1.6,
     maxWidth: 640,
     fontSize: 14,

@@ -34,6 +34,26 @@ function isSectionVisible(theme, sectionId) {
   return entry.visible !== false;
 }
 
+function SectionColorField({ id, label, hint, value, fallback, onChange, onReset }) {
+  return (
+    <div style={s.sectionEditorRow}>
+      <label style={s.label} htmlFor={id}>
+        {label}
+        {hint ? <span style={s.sectionFieldHint}>{hint}</span> : null}
+      </label>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <input id={id} type="color" value={value || fallback} onChange={(e) => onChange(e.target.value)} />
+        <span style={s.sectionColorMeta}>{value || "Theme default"}</span>
+        {value ? (
+          <button type="button" style={s.adminExit} onClick={onReset}>
+            Reset
+          </button>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 export function ThemeModal({ theme, onSave, onClose }) {
   const [tab, setTab] = useState("global");
 
@@ -94,7 +114,7 @@ export function ThemeModal({ theme, onSave, onClose }) {
           style={tab === "sections" ? { ...s.themeTab, ...s.themeTabActive } : s.themeTab}
           onClick={() => setTab("sections")}
         >
-          Section by section
+          Section colors
         </button>
       </div>
 
@@ -201,12 +221,14 @@ export function ThemeModal({ theme, onSave, onClose }) {
       {tab === "sections" && (
         <>
           <p style={{ margin: "0 0 14px", color: "var(--muted)", fontSize: 14, lineHeight: 1.55 }}>
-            Override colors or fonts for individual page sections. Leave blank to inherit the global theme.
+            Keep the global page background as-is. For each area below, set the strip color, nested boxes/panels,
+            and text independently. Reset any swatch to fall back to the theme default.
           </p>
 
           {SECTION_DEFS.map((sec) => {
             const visible = isSectionVisible(theme, sec.id);
             const bg = sectionValue(theme, sec.id, "bg");
+            const box = sectionValue(theme, sec.id, "box");
             const text = sectionValue(theme, sec.id, "text");
             const font = sectionValue(theme, sec.id, "font");
 
@@ -224,47 +246,39 @@ export function ThemeModal({ theme, onSave, onClose }) {
                   </label>
                 </div>
 
-                <div style={s.sectionEditorRow}>
-                  <label style={s.label} htmlFor={`sec-bg-${sec.id}`}>
-                    Background override
-                  </label>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <input
-                      id={`sec-bg-${sec.id}`}
-                      type="color"
-                      value={bg || theme.colors?.paper || "#EDE6D6"}
-                      onChange={(e) => setSectionField(sec.id, "bg", e.target.value)}
-                    />
-                    {bg && (
-                      <button type="button" style={s.adminExit} onClick={() => setSectionField(sec.id, "bg", "")}>
-                        Reset
-                      </button>
-                    )}
-                  </div>
-                </div>
+                <SectionColorField
+                  id={`sec-bg-${sec.id}`}
+                  label="Area background"
+                  hint="Strip / section fill"
+                  value={bg}
+                  fallback={theme.colors?.paper || "#1C2A22"}
+                  onChange={(v) => setSectionField(sec.id, "bg", v)}
+                  onReset={() => setSectionField(sec.id, "bg", "")}
+                />
 
-                <div style={s.sectionEditorRow}>
-                  <label style={s.label} htmlFor={`sec-text-${sec.id}`}>
-                    Text override
-                  </label>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <input
-                      id={`sec-text-${sec.id}`}
-                      type="color"
-                      value={text || theme.colors?.ink || "#2B2016"}
-                      onChange={(e) => setSectionField(sec.id, "text", e.target.value)}
-                    />
-                    {text && (
-                      <button type="button" style={s.adminExit} onClick={() => setSectionField(sec.id, "text", "")}>
-                        Reset
-                      </button>
-                    )}
-                  </div>
-                </div>
+                <SectionColorField
+                  id={`sec-box-${sec.id}`}
+                  label="Boxes & panels"
+                  hint="Cards, pills, nested panels"
+                  value={box}
+                  fallback={theme.colors?.paper || "#1C2A22"}
+                  onChange={(v) => setSectionField(sec.id, "box", v)}
+                  onReset={() => setSectionField(sec.id, "box", "")}
+                />
+
+                <SectionColorField
+                  id={`sec-text-${sec.id}`}
+                  label="Text color"
+                  hint="Headings & copy in this area"
+                  value={text}
+                  fallback={theme.colors?.ink || "#F3EEE4"}
+                  onChange={(v) => setSectionField(sec.id, "text", v)}
+                  onReset={() => setSectionField(sec.id, "text", "")}
+                />
 
                 <div style={s.sectionEditorRow}>
                   <label style={s.label} htmlFor={`sec-font-${sec.id}`}>
-                    Heading font override
+                    Heading font
                   </label>
                   <select
                     id={`sec-font-${sec.id}`}

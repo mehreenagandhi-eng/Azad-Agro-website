@@ -355,10 +355,12 @@ export default function AzadAgroStore() {
   const googleFontsUrl = buildGoogleFontsUrl(theme.fonts, sectionFontIds);
   const sectionCssVars = SECTION_DEFS.map((sec) => {
     const bg = sectionValue(theme, sec.id, "bg");
+    const box = sectionValue(theme, sec.id, "box");
     const text = sectionValue(theme, sec.id, "text");
     const fontId = sectionValue(theme, sec.id, "font");
     let out = "";
     if (bg) out += `--${sec.id}-bg: ${bg};\n`;
+    if (box) out += `--${sec.id}-box: ${box};\n`;
     if (text) out += `--${sec.id}-text: ${text};\n`;
     if (fontId) out += `--${sec.id}-font: '${findFont("display", fontId).family}', serif;\n`;
     return out;
