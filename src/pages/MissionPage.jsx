@@ -2,6 +2,7 @@ import React from "react";
 import { s } from "../styles";
 import { EditableText, EditableList } from "../components/EditableText";
 import { RemovableSection, isSectionVisible } from "../components/RemovableSection";
+import { SectionColorAnchor, SectionColorControl } from "../components/SectionColorControl";
 
 export function MissionPage({
   marketplace,
@@ -20,7 +21,7 @@ export function MissionPage({
 
   return (
     <>
-      <header style={s.pageBanner}>
+      <SectionColorAnchor sectionId="contentpages" as="header" style={s.pageBanner}>
         <div style={s.pageBannerInner}>
           <p style={s.ledgerLine}>{marketplace.ledgerLine}</p>
           <EditableText
@@ -39,9 +40,10 @@ export function MissionPage({
             multiline
           />
         </div>
-      </header>
+      </SectionColorAnchor>
 
-      <div style={s.pageBody}>
+      <div style={{ ...s.pageBody, position: "relative" }}>
+        <SectionColorControl sectionId="contentpanels" />
         <RemovableSection
           sectionId="missionBody"
           theme={theme}

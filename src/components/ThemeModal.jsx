@@ -221,8 +221,9 @@ export function ThemeModal({ theme, onSave, onClose }) {
       {tab === "sections" && (
         <>
           <p style={{ margin: "0 0 14px", color: "var(--muted)", fontSize: 14, lineHeight: 1.55 }}>
-            Keep the global page background as-is. For each area below, set the strip color, nested boxes/panels,
-            and text independently. Reset any swatch to fall back to the theme default.
+            Tip: on the live page, use the <strong>Color</strong> button on each section to edit while you watch
+            the change. Or set colors here — area background, boxes/panels, and text. Reset any swatch to fall
+            back to the theme default.
           </p>
 
           {SECTION_DEFS.map((sec) => {

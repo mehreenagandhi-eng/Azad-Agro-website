@@ -1,6 +1,7 @@
 import React from "react";
 import { s } from "../styles";
 import { EditableText } from "../components/EditableText";
+import { SectionColorAnchor, SectionColorControl } from "../components/SectionColorControl";
 
 function StepSection({
   heading,
@@ -91,7 +92,7 @@ export function GetStartedPage({
 
   return (
     <>
-      <header style={s.pageBanner}>
+      <SectionColorAnchor sectionId="contentpages" as="header" style={s.pageBanner}>
         <div style={s.pageBannerInner}>
           <p style={s.ledgerLine}>{marketplace.ledgerLine}</p>
           <EditableText
@@ -110,9 +111,10 @@ export function GetStartedPage({
             multiline
           />
         </div>
-      </header>
+      </SectionColorAnchor>
 
-      <div style={s.pageBody}>
+      <div style={{ ...s.pageBody, position: "relative" }}>
+        <SectionColorControl sectionId="contentpanels" />
         <StepSection
           heading={marketplace.buyerHeading}
           intro={marketplace.buyerIntro}

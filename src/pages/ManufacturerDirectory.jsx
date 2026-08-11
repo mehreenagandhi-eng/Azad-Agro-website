@@ -2,6 +2,7 @@ import React from "react";
 import { s } from "../styles";
 import { Icon } from "../components/Icon";
 import { EditableText } from "../components/EditableText";
+import { SectionColorAnchor, SectionColorControl } from "../components/SectionColorControl";
 
 export function ManufacturerCard({
   mfg,
@@ -106,7 +107,7 @@ export function ManufacturerDirectory({
 
   return (
     <>
-      <header style={s.pageBanner}>
+      <SectionColorAnchor sectionId="contentpages" as="header" style={s.pageBanner}>
         <div style={s.pageBannerInner}>
           <p style={s.ledgerLine}>{marketplace.ledgerLine}</p>
           <EditableText
@@ -125,7 +126,7 @@ export function ManufacturerDirectory({
             multiline
           />
         </div>
-      </header>
+      </SectionColorAnchor>
 
       <div style={s.pageBody}>
         {isAdmin && onAddManufacturer && (
@@ -141,7 +142,9 @@ export function ManufacturerDirectory({
               : copy.emptyDirectoryText || "No manufacturers listed yet."}
           </p>
         ) : (
-          <div style={s.mfgGrid}>
+          <div style={{ position: "relative" }}>
+            <SectionColorControl sectionId="directory" />
+            <div style={s.mfgGrid}>
             {visible.map((mfg) => (
               <ManufacturerCard
                 key={mfg.id}
@@ -157,6 +160,7 @@ export function ManufacturerDirectory({
                 }
               />
             ))}
+            </div>
           </div>
         )}
       </div>

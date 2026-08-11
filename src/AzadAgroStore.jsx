@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { TextStyleContext } from "./context/TextStyleContext";
+import { ThemeEditProvider } from "./context/ThemeEditContext";
 import { EditableText } from "./components/EditableText";
 import { Modal } from "./components/Modal";
 import { ImageCropper } from "./components/ImageCropper";
 import { ThemeModal } from "./components/ThemeModal";
+import { SectionColorAnchor } from "./components/SectionColorControl";
 import { ProductEditModal } from "./components/ProductEditModal";
 import { ManufacturerEditModal } from "./components/ManufacturerEditModal";
 import { SettingsModal } from "./components/SettingsModal";
@@ -38,6 +40,7 @@ export default function AzadAgroStore() {
   const [site, setSite] = useState(DEFAULT_MARKETPLACE);
   const [manufacturers, setManufacturers] = useState(DEFAULT_MANUFACTURERS);
   const [theme, setTheme] = useState(DEFAULT_THEME);
+  const [activeColorSection, setActiveColorSection] = useState(null);
   const [loaded, setLoaded] = useState(false);
   const [showTheme, setShowTheme] = useState(false);
   const [logoCropSource, setLogoCropSource] = useState(null);
@@ -136,8 +139,7 @@ export default function AzadAgroStore() {
   }, []);
 
   const themeSaveTimer = React.useRef(null);
-  const saveTheme = useCallback((next) => {
-    setTheme(next);
+  const persistTheme = useCallback((next) => {
     if (themeSaveTimer.current) clearTimeout(themeSaveTimer.current);
     themeSaveTimer.current = setTimeout(async () => {
       try {
@@ -149,36 +151,68 @@ export default function AzadAgroStore() {
     }, 450);
   }, []);
 
-  const setTextOverride = useCallback((textId, patch) => {
-    setTheme((prev) => {
-      const nextOverrides = { ...(prev.textOverrides || {}) };
-      if (patch === null) delete nextOverrides[textId];
-      else nextOverrides[textId] = patch;
-      const next = { ...prev, textOverrides: nextOverrides };
-      if (themeSaveTimer.current) clearTimeout(themeSaveTimer.current);
-      themeSaveTimer.current = setTimeout(async () => {
-        try {
-          await window.storage.set("theme-v2", JSON.stringify(next), true);
-          flash("Saved");
-        } catch {
-          flash("Save failed — try again");
-        }
-      }, 450);
-      return next;
-    });
-  }, []);
+  const saveTheme = useCallback(
+    (next) => {
+      setTheme(next);
+      persistTheme(next);
+    },
+    [persistTheme]
+  );
 
-  const toggleThemeSectionVisible = useCallback(
-    (sectionId, visible) => {
-      saveTheme({
-        ...theme,
-        sections: {
-          ...(theme.sections || {}),
-          [sectionId]: { ...(theme.sections?.[sectionId] || {}), visible },
-        },
+  const patchSectionField = useCallback(
+    (sectionId, key, value) => {
+      setTheme((prev) => {
+        const current = { ...(prev.sections?.[sectionId] || {}) };
+        if (!value && value !== false) delete current[key];
+        else current[key] = value;
+        const sections = { ...(prev.sections || {}) };
+        if (Object.keys(current).length === 0) delete sections[sectionId];
+        else sections[sectionId] = current;
+        const next = { ...prev, sections };
+        persistTheme(next);
+        return next;
       });
     },
-    [saveTheme, theme]
+    [persistTheme]
+  );
+
+  const setTextOverride = useCallback(
+    (textId, patch) => {
+      setTheme((prev) => {
+        const nextOverrides = { ...(prev.textOverrides || {}) };
+        if (patch === null) delete nextOverrides[textId];
+        else nextOverrides[textId] = patch;
+        const next = { ...prev, textOverrides: nextOverrides };
+        persistTheme(next);
+        return next;
+      });
+    },
+    [persistTheme]
+  );
+
+  const toggleThemeSectionVisible = useCallback((sectionId, visible) => {
+    setTheme((prev) => {
+      const next = {
+        ...prev,
+        sections: {
+          ...(prev.sections || {}),
+          [sectionId]: { ...(prev.sections?.[sectionId] || {}), visible },
+        },
+      };
+      persistTheme(next);
+      return next;
+    });
+  }, [persistTheme]);
+
+  const themeEditValue = useMemo(
+    () => ({
+      isAdmin,
+      theme,
+      patchSectionField,
+      activeColorSection,
+      setActiveColorSection,
+    }),
+    [isAdmin, theme, patchSectionField, activeColorSection]
   );
 
   const activeManufacturer = manufacturers.find((m) => m.id === activeManufacturerId) || null;
@@ -368,6 +402,7 @@ export default function AzadAgroStore() {
 
   return (
     <TextStyleContext.Provider value={{ overrides: theme.textOverrides || {}, setOverride: setTextOverride }}>
+      <ThemeEditProvider value={themeEditValue}>
       <div style={s.app} className="aa-app-root">
         <style>{`
         @import url('${googleFontsUrl}');
@@ -424,7 +459,7 @@ export default function AzadAgroStore() {
 
         {savedFlash && <div style={s.flash}>{savedFlash}</div>}
 
-        <header style={s.header}>
+        <SectionColorAnchor sectionId="header" as="header" style={s.header}>
           <div style={s.headerInner}>
             <div
               style={s.logoWrap}
@@ -597,7 +632,7 @@ export default function AzadAgroStore() {
               <span style={s.cartCount}>{cartCount}</span>
             </button>
           </div>
-        </header>
+        </SectionColorAnchor>
 
         {view === "home" && (
           <MarketplaceHome marketplace={site} isAdmin={isAdmin} onUpdateMarketplace={saveSite} />
@@ -682,7 +717,7 @@ export default function AzadAgroStore() {
         {cartOpen && (
           <>
             <div style={s.overlay} onClick={() => setCartOpen(false)} />
-            <aside style={s.drawer} aria-label="Shopping cart">
+            <SectionColorAnchor sectionId="drawer" as="aside" style={s.drawer} aria-label="Shopping cart" corner="top-left">
               <div style={s.drawerHead}>
                 <h2 style={s.cartDrawerTitle}>
                   <EditableText
@@ -810,7 +845,7 @@ export default function AzadAgroStore() {
                   </button>
                 </div>
               )}
-            </aside>
+            </SectionColorAnchor>
           </>
         )}
 
@@ -905,7 +940,7 @@ export default function AzadAgroStore() {
           />
         )}
 
-        <footer style={s.footer}>
+        <SectionColorAnchor sectionId="footer" as="footer" style={s.footer}>
           <div className="aa-footer-grid" style={s.footerInner}>
             <div>
               <div style={s.logoTitle}>{site.title}</div>
@@ -973,8 +1008,9 @@ export default function AzadAgroStore() {
               textStyle={s.footerBar}
             />
           </div>
-        </footer>
+        </SectionColorAnchor>
       </div>
+      </ThemeEditProvider>
     </TextStyleContext.Provider>
   );
 }

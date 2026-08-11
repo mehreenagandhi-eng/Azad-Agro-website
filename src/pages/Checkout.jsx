@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { s } from "../styles";
 import { Icon, ProductVisual } from "../components/Icon";
+import { SectionColorControl } from "../components/SectionColorControl";
 import { rupee } from "../data/defaults";
 
 const FREE_DELIVERY_THRESHOLD = 999;
@@ -118,7 +119,9 @@ export function Checkout({
       {cartItems.length === 0 ? (
         <p style={s.pageIntro}>{copy.emptyCartText || "Your crate is empty."}</p>
       ) : (
-        <div style={s.checkoutGrid}>
+        <div style={{ position: "relative" }}>
+          <SectionColorControl sectionId="checkout" />
+          <div style={s.checkoutGrid}>
           <form style={s.checkoutForm} onSubmit={handleSubmit}>
             <h2 style={s.sectionTitle}>{copy.deliveryDetailsHeading || "Delivery details"}</h2>
 
@@ -234,6 +237,7 @@ export function Checkout({
               <span>{rupee(total)}</span>
             </div>
           </aside>
+          </div>
         </div>
       )}
     </main>

@@ -5,6 +5,7 @@ import { EditableText, EditableList } from "../components/EditableText";
 import { ProductCard } from "../components/ProductCard";
 import { CoverPhotoBlock } from "../components/CoverPhotoBlock";
 import { RemovableSection, isSectionVisible } from "../components/RemovableSection";
+import { SectionColorAnchor, SectionColorControl } from "../components/SectionColorControl";
 const TABS = [
   { id: "order", labelKey: "orderNowLabel", fallback: "Order Now" },
   { id: "story", labelKey: "ourStoryLabel", fallback: "Our Story" },
@@ -70,7 +71,7 @@ export function ManufacturerPage({
         </div>
       )}
 
-      <header style={s.pageBanner}>
+      <SectionColorAnchor sectionId="contentpages" as="header" style={s.pageBanner}>
         <div style={s.pageBannerInner}>
           {showReviewBanner && (
             <div style={s.reviewBanner}>
@@ -127,9 +128,9 @@ export function ManufacturerPage({
             />
           </div>
         </div>
-      </header>
+      </SectionColorAnchor>
 
-      <nav style={s.mfgSubNav} aria-label="Manufacturer sections">
+      <SectionColorAnchor sectionId="mfgtabs" as="nav" style={s.mfgSubNav} aria-label="Manufacturer sections">
         <div style={s.mfgSubNavInner}>
           {TABS.map((t) => (
             <button
@@ -145,7 +146,7 @@ export function ManufacturerPage({
             </button>
           ))}
         </div>
-      </nav>
+      </SectionColorAnchor>
 
       <div style={s.pageBody}>
         {tab === "story" && (
@@ -268,7 +269,8 @@ export function ManufacturerPage({
         )}
 
         {tab === "contact" && (
-          <section>
+          <section style={{ position: "relative" }}>
+            <SectionColorControl sectionId="contact" />
             <h2 style={s.pageSubheading}>{copy.contactHeading || "Contact & delivery"}</h2>
             <div style={s.contactGrid}>
               <div style={s.contactDetailsCard}>
@@ -319,7 +321,7 @@ export function ManufacturerPage({
           <>
             <h2 style={s.pageSubheading}>{copy.shopHeading || "Shop this manufacturer"}</h2>
 
-            <nav style={s.quickNav} aria-label="Product categories">
+            <SectionColorAnchor sectionId="quicknav" as="nav" style={s.quickNav} aria-label="Product categories">
               <div style={s.quickNavInner}>
                 {categories.map((cat) => (
                   <button
@@ -335,10 +337,10 @@ export function ManufacturerPage({
                   </button>
                 ))}
               </div>
-            </nav>
+            </SectionColorAnchor>
 
             {featured.length > 0 && category === allLabel && (
-              <section style={s.featuredSection}>
+              <SectionColorAnchor sectionId="featured" as="section" style={s.featuredSection}>
                 <h3 style={s.featuredHeading}>{copy.featuredHeading || "Featured this season"}</h3>
                 <div style={s.featuredGrid}>
                   {featured.map((p) => (
@@ -357,10 +359,10 @@ export function ManufacturerPage({
                     />
                   ))}
                 </div>
-              </section>
+              </SectionColorAnchor>
             )}
 
-            <section style={s.shopSection}>
+            <SectionColorAnchor sectionId="cards" as="section" style={s.shopSection}>
               {isAdmin && onAddProduct && (
                 <button type="button" style={s.addProductBtn} onClick={onAddProduct}>
                   {copy.addProductButtonLabel || "+ Add product"}
@@ -389,7 +391,7 @@ export function ManufacturerPage({
                     ))}
                 </div>
               )}
-            </section>
+            </SectionColorAnchor>
           </>
         )}
       </div>

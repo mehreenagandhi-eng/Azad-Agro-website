@@ -2,6 +2,7 @@ import React from "react";
 import { s } from "../styles";
 import { EditableText } from "../components/EditableText";
 import { CoverPhotoBlock } from "../components/CoverPhotoBlock";
+import { SectionColorAnchor } from "../components/SectionColorControl";
 
 /**
  * Homepage is branding-only: brand as hero, one supporting line, ledger stats, one visual.
@@ -13,7 +14,7 @@ export function MarketplaceHome({ marketplace, isAdmin = false, onUpdateMarketpl
 
   return (
     <main>
-      <section style={s.hero}>
+      <SectionColorAnchor sectionId="hero" as="section" style={s.hero}>
         <div
           className="aa-hero-atmosphere"
           aria-hidden="true"
@@ -96,7 +97,7 @@ export function MarketplaceHome({ marketplace, isAdmin = false, onUpdateMarketpl
             />
           </div>
         </div>
-      </section>
+      </SectionColorAnchor>
     </main>
   );
 }

@@ -1695,7 +1695,100 @@ export const s = {
     fontFamily: "var(--font-mono)",
     color: "var(--muted)",
     letterSpacing: "0.02em",
-    minWidth: 96,
+    minWidth: 72,
+  },
+
+  sectionColorBtn: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    zIndex: 90,
+    border: "1px solid color-mix(in srgb, var(--accent) 55%, var(--border))",
+    background: "color-mix(in srgb, var(--paper) 88%, var(--accent) 12%)",
+    color: "var(--ink)",
+    borderRadius: 999,
+    padding: "6px 12px",
+    fontSize: 12,
+    fontWeight: 700,
+    fontFamily: "var(--font-mono)",
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
+    cursor: "pointer",
+    boxShadow: "0 6px 16px color-mix(in srgb, black 22%, transparent)",
+  },
+
+  sectionColorBtnActive: {
+    background: "var(--accent)",
+    color: "var(--paper)",
+    border: "1px solid color-mix(in srgb, var(--accent) 70%, var(--ink))",
+  },
+
+  sectionColorPopover: {
+    position: "fixed",
+    zIndex: 10050,
+    padding: "12px 14px 14px",
+    borderRadius: 14,
+    border: "1px solid var(--border)",
+    background: "var(--paper)",
+    color: "var(--ink)",
+    boxShadow: "0 18px 40px color-mix(in srgb, black 35%, transparent)",
+  },
+
+  sectionColorPopoverHead: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+    marginBottom: 4,
+  },
+
+  sectionColorPopoverTitle: {
+    fontSize: 13,
+    fontWeight: 700,
+    lineHeight: 1.3,
+  },
+
+  sectionColorPopoverHint: {
+    margin: "0 0 12px",
+    fontSize: 12,
+    color: "var(--muted)",
+    lineHeight: 1.4,
+  },
+
+  sectionColorClose: {
+    border: "1px solid var(--border)",
+    background: "transparent",
+    color: "var(--ink)",
+    width: 28,
+    height: 28,
+    borderRadius: 999,
+    cursor: "pointer",
+    lineHeight: 1,
+  },
+
+  sectionColorField: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 10,
+  },
+
+  sectionColorFieldLabel: {
+    fontSize: 12.5,
+    fontWeight: 650,
+    color: "var(--ink)",
+  },
+
+  sectionColorReset: {
+    border: "1px solid var(--border)",
+    background: "transparent",
+    color: "var(--muted)",
+    borderRadius: 8,
+    padding: "4px 8px",
+    fontSize: 11,
+    fontWeight: 600,
+    cursor: "pointer",
+    fontFamily: "var(--font-mono)",
   },
 
   uploadRow: {
