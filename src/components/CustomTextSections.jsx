@@ -110,7 +110,7 @@ function CustomTextSectionBlock({ item, isAdmin, onUpdate, onRemove }) {
     ...(isAdmin ? s.customTextSectionAdmin : null),
   };
 
-  const remove = (e) => {
+  const deleteSection = (e) => {
     e.preventDefault();
     e.stopPropagation();
     setColorOpen(false);
@@ -118,7 +118,7 @@ function CustomTextSectionBlock({ item, isAdmin, onUpdate, onRemove }) {
   };
 
   return (
-    <section style={shellStyle}>
+    <section style={shellStyle} data-custom-text-section={item.id}>
       {isAdmin && (
         <div style={s.customTextSectionToolbar}>
           <button
@@ -128,6 +128,8 @@ function CustomTextSectionBlock({ item, isAdmin, onUpdate, onRemove }) {
             style={{
               ...s.sectionColorBtn,
               position: "static",
+              top: "auto",
+              right: "auto",
               ...(colorOpen ? s.sectionColorBtnActive : null),
             }}
             onClick={() => setColorOpen((o) => !o)}
@@ -136,12 +138,13 @@ function CustomTextSectionBlock({ item, isAdmin, onUpdate, onRemove }) {
           </button>
           <button
             type="button"
-            style={s.sectionRemoveBtn}
-            // mousedown + preventDefault so field blur cannot re-save after delete
-            onMouseDown={remove}
-            onClick={remove}
+            style={s.customTextDeleteBtn}
+            aria-label="Delete this text section"
+            title="Delete this text box"
+            onMouseDown={deleteSection}
+            onClick={deleteSection}
           >
-            Remove section
+            Delete section
           </button>
         </div>
       )}
@@ -182,47 +185,52 @@ function CustomTextSectionBlock({ item, isAdmin, onUpdate, onRemove }) {
 }
 
 /**
- * Edit Mode: add / remove / recolor freeform text sections.
- * Content + colors persist with the parent save handler.
+ * Edit Mode: add / delete / recolor freeform text section boxes.
+ * Fully controlled by `sections` + `onChange` so deletes persist cleanly.
  */
 export function CustomTextSections({ isAdmin = false, sections = [], onChange, addLabel = "+ Add text section" }) {
-  const propsList = Array.isArray(sections) ? sections : [];
-  const [list, setList] = useState(propsList);
+  const list = Array.isArray(sections) ? sections : [];
   const listRef = useRef(list);
   const removedIdsRef = useRef(new Set());
+  const [, bump] = useState(0);
   listRef.current = list;
 
-  // Sync from parent, but never re-introduce sections the user already removed.
-  const propsKey = propsList.map((item) => item.id).join("|");
+  // Once parent no longer has a removed id, drop the guard.
   useEffect(() => {
-    const incoming = Array.isArray(sections) ? sections : [];
-    const filtered = incoming.filter((item) => !removedIdsRef.current.has(item.id));
-    setList(filtered);
-    listRef.current = filtered;
-    // intentionally depend on id signature + sections reference from parent
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [propsKey, sections]);
+    const liveIds = new Set(list.map((item) => item.id));
+    let changed = false;
+    for (const id of [...removedIdsRef.current]) {
+      if (!liveIds.has(id)) {
+        removedIdsRef.current.delete(id);
+        changed = true;
+      }
+    }
+    if (changed) bump((n) => n + 1);
+  }, [list]);
+
+  const visibleList = list.filter((item) => !removedIdsRef.current.has(item.id));
 
   const persist = (next) => {
     listRef.current = next;
-    setList(next);
     onChange?.(next);
   };
 
   const updateItem = (id, partial) => {
     if (removedIdsRef.current.has(id)) return;
-    if (!listRef.current.some((item) => item.id === id)) return;
-    persist(listRef.current.map((item) => (item.id === id ? { ...item, ...partial } : item)));
+    const current = listRef.current;
+    if (!current.some((item) => item.id === id)) return;
+    persist(current.map((item) => (item.id === id ? { ...item, ...partial } : item)));
   };
 
   const removeItem = (id) => {
     removedIdsRef.current.add(id);
+    bump((n) => n + 1); // hide the box immediately
     persist(listRef.current.filter((item) => item.id !== id));
   };
 
   const addItem = () => {
     persist([
-      ...listRef.current,
+      ...listRef.current.filter((item) => !removedIdsRef.current.has(item.id)),
       {
         id: sectionId(),
         heading: "New text section",
@@ -233,11 +241,11 @@ export function CustomTextSections({ isAdmin = false, sections = [], onChange, a
     ]);
   };
 
-  if (!isAdmin && list.length === 0) return null;
+  if (!isAdmin && visibleList.length === 0) return null;
 
   return (
     <div style={s.customTextSectionsWrap}>
-      {list.map((item) => (
+      {visibleList.map((item) => (
         <CustomTextSectionBlock
           key={item.id}
           item={item}

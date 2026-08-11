@@ -2149,6 +2149,7 @@ export const s = {
   },
 
   customTextSection: {
+    position: "relative",
     padding: "18px 18px 20px",
     borderRadius: 14,
     border: "1px solid color-mix(in srgb, var(--border) 85%, transparent)",
@@ -2165,5 +2166,19 @@ export const s = {
     gap: 8,
     marginBottom: 10,
     flexWrap: "wrap",
+  },
+
+  customTextDeleteBtn: {
+    position: "static",
+    border: "1px solid color-mix(in srgb, var(--danger) 45%, var(--border))",
+    background: "color-mix(in srgb, var(--danger) 12%, var(--paper))",
+    color: "var(--danger)",
+    borderRadius: 8,
+    padding: "6px 12px",
+    fontSize: 12,
+    fontFamily: "var(--font-mono)",
+    fontWeight: 600,
+    cursor: "pointer",
+    lineHeight: 1.2,
   },
 };
