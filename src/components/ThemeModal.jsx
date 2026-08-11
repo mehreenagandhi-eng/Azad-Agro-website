@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { s } from "../styles";
 import { Modal } from "./Modal";
 import { FONT_OPTIONS } from "../data/fonts";
-import { THEME_PRESETS, SECTION_DEFS, sectionValue } from "../data/themes";
+import { THEME_PRESETS, GREEN_BACKGROUNDS, SECTION_DEFS, sectionValue } from "../data/themes";
 
 const COLOR_KEYS = [
   { key: "paper", label: "Paper (background)" },
@@ -17,6 +17,16 @@ const FONT_ROLES = [
   { role: "body", label: "Body (paragraphs)" },
   { role: "mono", label: "Mono (labels & badges)" },
 ];
+
+function isLightHex(hex = "") {
+  const h = String(hex).replace("#", "");
+  if (h.length !== 6) return false;
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  // Relative luminance threshold
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) > 160;
+}
 
 function isSectionVisible(theme, sectionId) {
   const entry = theme?.sections?.[sectionId];
@@ -41,6 +51,18 @@ export function ThemeModal({ theme, onSave, onClose }) {
       colors: { ...preset.colors },
       fonts: { ...preset.fonts },
     });
+  };
+
+  const applyGreenBackground = (swatch) => {
+    const nextColors = { ...theme.colors, paper: swatch.paper };
+    // Keep text readable when jumping between dark and light greens
+    if (swatch.inkHint === "light" && !isLightHex(theme.colors?.ink)) {
+      nextColors.ink = "#F3EEE4";
+    }
+    if (swatch.inkHint === "dark" && isLightHex(theme.colors?.ink)) {
+      nextColors.ink = "#243028";
+    }
+    onSave({ ...theme, colors: nextColors });
   };
 
   const setSectionField = (sectionId, key, value) => {
@@ -82,7 +104,37 @@ export function ThemeModal({ theme, onSave, onClose }) {
             Pick a preset or fine-tune colors and fonts. Changes apply live across the marketplace.
           </p>
 
-          <p style={s.previewLabel}>Presets</p>
+          <p style={s.previewLabel}>Background greens</p>
+          <p style={{ margin: "0 0 10px", color: "var(--muted)", fontSize: 12.5, lineHeight: 1.45 }}>
+            Tap a shade to change only the page background. Text color adjusts automatically if needed.
+          </p>
+          <div style={s.greenBgGrid}>
+            {GREEN_BACKGROUNDS.map((swatch) => {
+              const active = (theme.colors?.paper || "").toLowerCase() === swatch.paper.toLowerCase();
+              return (
+                <button
+                  key={swatch.id}
+                  type="button"
+                  className="aa-btn"
+                  style={{
+                    ...s.greenBgSwatch,
+                    background: swatch.paper,
+                    color: swatch.inkHint === "light" ? "#F3EEE4" : "#243028",
+                    outline: active ? "2px solid var(--accent)" : "1px solid var(--border)",
+                    outlineOffset: 2,
+                  }}
+                  onClick={() => applyGreenBackground(swatch)}
+                  aria-label={`${swatch.name} background ${swatch.paper}`}
+                  title={`${swatch.name} · ${swatch.paper}`}
+                >
+                  <span style={s.greenBgName}>{swatch.name}</span>
+                  <span style={s.greenBgHex}>{swatch.paper}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <p style={{ ...s.previewLabel, marginTop: 18 }}>Full presets</p>
           <div style={s.presetGrid}>
             {THEME_PRESETS.map((preset) => (
               <button

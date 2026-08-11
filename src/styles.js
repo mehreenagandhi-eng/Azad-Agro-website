@@ -1517,6 +1517,42 @@ export const s = {
     outline: "none",
   },
 
+  greenBgGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(128px, 1fr))",
+    gap: 10,
+    marginBottom: 6,
+  },
+
+  greenBgSwatch: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    justifyContent: "flex-end",
+    gap: 4,
+    minHeight: 72,
+    padding: "10px 12px",
+    borderRadius: 12,
+    border: "none",
+    cursor: "pointer",
+    textAlign: "left",
+    fontFamily: "var(--font-body)",
+  },
+
+  greenBgName: {
+    fontSize: 12.5,
+    fontWeight: 650,
+    letterSpacing: "0.01em",
+    lineHeight: 1.25,
+  },
+
+  greenBgHex: {
+    fontSize: 11,
+    fontFamily: "var(--font-mono)",
+    opacity: 0.78,
+    letterSpacing: "0.02em",
+  },
+
   presetGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",

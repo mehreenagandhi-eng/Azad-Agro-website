@@ -75,7 +75,7 @@ export function CoverPhotoBlock({
           <ImageCropper
             source={cropSource}
             aspect={4 / 3}
-            onConfirm={onCropComplete}
+            onComplete={onCropComplete}
             onCancel={() => setCropSource(null)}
           />
         </Modal>
