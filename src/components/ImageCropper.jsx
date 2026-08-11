@@ -31,7 +31,8 @@ function centerPos(imgW, imgH, zoom, viewW, viewH) {
   );
 }
 
-export function ImageCropper({ source, aspect = 6 / 7, onComplete, onCancel }) {
+export function ImageCropper({ source, aspect = 6 / 7, onComplete, onConfirm, onCancel }) {
+  const finish = onComplete || onConfirm;
   const viewW = CROP_VIEW_W;
   const viewH = CROP_VIEW_W / aspect;
 
@@ -142,7 +143,7 @@ export function ImageCropper({ source, aspect = 6 / 7, onComplete, onCancel }) {
     canvas.height = outH;
     const ctx = canvas.getContext("2d");
     ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, outW, outH);
-    onComplete?.(canvas.toDataURL("image/jpeg", 0.82));
+    finish?.(canvas.toDataURL("image/jpeg", 0.82));
   };
 
   if (!imgUrl) {
