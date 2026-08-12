@@ -312,7 +312,9 @@ function OrdersPanel({ orders = [] }) {
               <div>
                 <p style={s.settingsOrderLabel}>Payment</p>
                 <p style={s.settingsOrderValue}>
-                  {order.payment === "upi" ? "UPI" : "Cash on delivery"}
+                  {order.payment === "upi" || order.paymentMethod === "upi_qr"
+                    ? `UPI${order.manufacturerName ? ` → ${order.manufacturerName}` : ""}`
+                    : order.payment || "UPI"}
                 </p>
               </div>
             </div>

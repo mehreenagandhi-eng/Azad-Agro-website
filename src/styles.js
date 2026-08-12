@@ -1934,6 +1934,125 @@ export const s = {
     marginTop: 8,
   },
 
+  upiPayHint: {
+    margin: "0 0 12px",
+    fontSize: 14,
+    lineHeight: 1.55,
+    color: "var(--muted)",
+  },
+
+  upiPayBox: {
+    display: "grid",
+    gap: 12,
+    justifyItems: "center",
+    textAlign: "center",
+    padding: "16px 14px 18px",
+    marginBottom: 14,
+    borderRadius: 14,
+    border: "1px solid color-mix(in srgb, var(--accent2) 28%, var(--border))",
+    background: "color-mix(in srgb, var(--paper) 90%, var(--accent2) 10%)",
+  },
+
+  upiPayFarm: {
+    fontFamily: "var(--font-display)",
+    fontSize: "1.05rem",
+    fontWeight: 600,
+    color: "var(--ink)",
+  },
+
+  upiPayAmount: {
+    fontSize: "1.55rem",
+    fontWeight: 700,
+    letterSpacing: "-0.02em",
+    color: "var(--ink)",
+  },
+
+  upiQrFrame: {
+    width: 220,
+    height: 220,
+    padding: 10,
+    borderRadius: 16,
+    border: "1px solid var(--border)",
+    background: "#fff",
+    boxSizing: "border-box",
+  },
+
+  upiQrImg: {
+    width: "100%",
+    height: "100%",
+    objectFit: "contain",
+    display: "block",
+  },
+
+  upiMissing: {
+    margin: 0,
+    maxWidth: 340,
+    fontSize: 13,
+    lineHeight: 1.5,
+    color: "var(--muted)",
+  },
+
+  upiIdRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+
+  upiIdCode: {
+    fontFamily: "var(--font-mono)",
+    fontSize: 13,
+    padding: "6px 10px",
+    borderRadius: 8,
+    background: "color-mix(in srgb, var(--paper) 88%, var(--ink) 12%)",
+    color: "var(--ink)",
+  },
+
+  upiAppRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 6,
+  },
+
+  upiAppChip: {
+    fontSize: 11,
+    fontWeight: 600,
+    letterSpacing: "0.02em",
+    color: "var(--muted)",
+    padding: "4px 8px",
+    borderRadius: 8,
+    border: "1px solid var(--border)",
+    background: "var(--paper)",
+  },
+
+  upiOpenLink: {
+    fontSize: 14,
+    fontWeight: 600,
+    color: "var(--accent2)",
+    textDecoration: "underline",
+  },
+
+  upiAdminEdit: {
+    width: "100%",
+    marginTop: 4,
+    paddingTop: 12,
+    borderTop: "1px dashed var(--border)",
+    textAlign: "left",
+  },
+
+  upiConfirmCheck: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: 10,
+    marginBottom: 10,
+    fontSize: 14,
+    lineHeight: 1.45,
+    color: "var(--ink)",
+    cursor: "pointer",
+  },
+
   summaryCard: {
     padding: "16px 16px 18px",
     borderRadius: 14,

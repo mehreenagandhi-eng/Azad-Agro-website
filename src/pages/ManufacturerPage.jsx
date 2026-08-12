@@ -8,6 +8,7 @@ import { SectionColorAnchor, SectionColorControl } from "../components/SectionCo
 import { PageSectionStack } from "../components/PageSectionStack";
 import { isSectionVisible } from "../components/RemovableSection";
 import { ResolvedImage } from "../components/ResolvedImage";
+import { SectionPhoto } from "../components/SectionPhoto";
 const TABS = [
   { id: "order", labelKey: "orderNowLabel", fallback: "Order Now" },
   { id: "story", labelKey: "ourStoryLabel", fallback: "Our Story" },
@@ -312,6 +313,62 @@ export function ManufacturerPage({
                   textStyle={s.contactText}
                   multiline
                 />
+              </div>
+              <div style={{ ...s.contactFormCard, gridColumn: "1 / -1" }}>
+                <h3 style={s.sectionTitle}>UPI payment</h3>
+                <p style={{ ...s.contactText, marginBottom: 12 }}>
+                  Buyers pay this farm directly. Add a UPI ID and optional QR so Order online can show
+                  the correct payment details. Food sellers should also hold a valid FSSAI registration
+                  or license.
+                </p>
+                {isAdmin ? (
+                  <>
+                    <label style={s.formRow}>
+                      <span style={s.label}>UPI ID</span>
+                      <input
+                        style={s.input}
+                        placeholder="farmname@upi"
+                        value={manufacturer.upiId || ""}
+                        onChange={(e) => setMfg("upiId", e.target.value)}
+                      />
+                    </label>
+                    <label style={s.formRow}>
+                      <span style={s.label}>FSSAI license / registration (optional)</span>
+                      <input
+                        style={s.input}
+                        placeholder="e.g. 10012021000123"
+                        value={manufacturer.fssaiLicense || ""}
+                        onChange={(e) => setMfg("fssaiLicense", e.target.value)}
+                      />
+                    </label>
+                    <SectionPhoto
+                      photo={manufacturer.upiQrPhoto || ""}
+                      isAdmin
+                      label="UPI QR"
+                      aspect={1}
+                      onChange={(photo) => setMfg("upiQrPhoto", photo)}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <p style={s.contactText}>
+                      UPI ID:{" "}
+                      <strong>{manufacturer.upiId?.trim() || "Not added yet"}</strong>
+                    </p>
+                    {manufacturer.fssaiLicense?.trim() ? (
+                      <p style={s.contactText}>FSSAI: {manufacturer.fssaiLicense}</p>
+                    ) : null}
+                    {manufacturer.upiQrPhoto ? (
+                      <div style={{ marginTop: 12, maxWidth: 200 }}>
+                        <ResolvedImage
+                          src={manufacturer.upiQrPhoto}
+                          alt={`${manufacturer.name} UPI QR`}
+                          style={{ width: "100%", borderRadius: 12, display: "block" }}
+                        />
+                      </div>
+                    ) : null}
+                  </>
+                )}
               </div>
             </div>
           </section>

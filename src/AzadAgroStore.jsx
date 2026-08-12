@@ -54,7 +54,7 @@ import {
 } from "./persistence";
 import { loadPublishedSite, publishedHasContent } from "./publishedSite";
 import { persistPhoto } from "./mediaStore";
-import { useResolvedPhoto } from "./components/ResolvedImage";
+import { ResolvedImage, useResolvedPhoto } from "./components/ResolvedImage";
 
 export default function AzadAgroStore({ clerkEnabled = false }) {
   const [view, setView] = useState("home");
@@ -415,7 +415,13 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
   function addToCart(mid, pid) {
     setCart((c) => {
       const key = `${mid}::${pid}`;
-      return { ...c, [key]: (c[key] || 0) + 1 };
+      const otherFarmKeys = Object.keys(c).filter((k) => !k.startsWith(`${mid}::`));
+      const base = { ...c };
+      if (otherFarmKeys.length) {
+        otherFarmKeys.forEach((k) => delete base[k]);
+        flash(site.copy.oneFarmCartNote || "Your crate is for one farm at a time.");
+      }
+      return { ...base, [key]: (base[key] || 0) + 1 };
     });
   }
 
@@ -963,6 +969,14 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
             marketplace={site}
             cartItems={items}
             account={account}
+            manufacturer={
+              manufacturers.find((m) => m.id === items[0]?.manufacturerId) || null
+            }
+            isAdmin={isAdmin}
+            onUpdateManufacturer={(updater) => {
+              const mid = items[0]?.manufacturerId;
+              if (mid) saveManufacturer(mid, updater);
+            }}
             onBack={() => setView(activeManufacturerId ? "manufacturer" : "directory")}
             onPlaceOrder={placeOrder}
           />
@@ -1007,7 +1021,7 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
                     <div key={it.id} style={s.drawerItem}>
                       <div style={{ ...s.miniIcon, color: "var(--accent2)" }}>
                         {it.image ? (
-                          <img
+                          <ResolvedImage
                             src={it.image}
                             alt=""
                             style={{ width: 34, height: 34, borderRadius: 6, objectFit: "cover" }}
@@ -1055,6 +1069,9 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
               )}
               {items.length > 0 && (
                 <div style={s.drawerFoot}>
+                  <p style={{ margin: "0 0 10px", fontSize: 12, color: "var(--muted)", lineHeight: 1.45 }}>
+                    Paying {items[0]?.manufacturerName || "one farm"} by UPI. One farm per order.
+                  </p>
                   <div style={s.sumRow}>
                     <EditableText
                       id="txt9"
@@ -1238,7 +1255,11 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
                     contactEmail: "",
                     contactPhone: "",
                     contactAddress: "",
-                    deliveryInfo: "",
+                    deliveryInfo:
+                      "Free delivery on orders above ₹999. Pay this farm directly by UPI (Google Pay, PhonePe, Paytm).",
+                    upiId: "",
+                    upiQrPhoto: "",
+                    fssaiLicense: "",
                     products: [],
                     customTextSections: [],
                   }
