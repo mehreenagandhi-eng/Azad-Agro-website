@@ -1,15 +1,18 @@
 /**
  * Durable browser persistence helpers.
- * Writes go to localStorage immediately so refresh keeps text + theme edits.
+ * Writes go to localStorage immediately so refresh / closed tabs keep edits
+ * on the same website link.
  */
 
 const SHARED_PREFIX = "azadagro:shared:";
 const LOCAL_PREFIX = "azadagro:local:";
+const BACKUP_BUNDLE_KEY = SHARED_PREFIX + "backup-bundle-v1";
 
 const pendingTextCommits = new Map();
 let themeFlush = null;
 let siteFlush = null;
 let manufacturersFlush = null;
+let bundleFlush = null;
 
 export function sharedKey(key) {
   return SHARED_PREFIX + key;
@@ -30,7 +33,25 @@ export function readJson(storageKey, fallback) {
 }
 
 export function writeJson(storageKey, value) {
-  localStorage.setItem(storageKey, JSON.stringify(value));
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(value));
+  } catch (err) {
+    console.warn("Could not save to localStorage", storageKey, err);
+    throw err;
+  }
+}
+
+/** Extra full-site snapshot so a single key can restore after refresh. */
+export function writeBackupBundle(bundle) {
+  try {
+    localStorage.setItem(BACKUP_BUNDLE_KEY, JSON.stringify(bundle));
+  } catch (err) {
+    console.warn("Could not write backup bundle", err);
+  }
+}
+
+export function readBackupBundle() {
+  return readJson(BACKUP_BUNDLE_KEY, null);
 }
 
 export function registerPendingTextCommit(id, commitFn) {
@@ -67,6 +88,10 @@ export function setManufacturersFlush(fn) {
   manufacturersFlush = fn;
 }
 
+export function setBundleFlush(fn) {
+  bundleFlush = fn;
+}
+
 export function flushAllPersistence() {
   flushPendingTextCommits();
   try {
@@ -84,6 +109,11 @@ export function flushAllPersistence() {
   } catch {
     /* ignore */
   }
+  try {
+    bundleFlush?.();
+  } catch {
+    /* ignore */
+  }
 }
 
 let listenersBound = false;
@@ -93,9 +123,12 @@ export function bindPersistenceLifecycle() {
   const flush = () => flushAllPersistence();
   window.addEventListener("pagehide", flush);
   window.addEventListener("beforeunload", flush);
+  window.addEventListener("freeze", flush);
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") flush();
   });
+  // Catch half-typed edits even if the tab is closed mid-debounce.
+  window.setInterval(flush, 2000);
 }
 
 export function mergeSite(defaults, saved) {

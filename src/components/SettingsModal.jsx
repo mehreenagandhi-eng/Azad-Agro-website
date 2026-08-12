@@ -385,8 +385,8 @@ function BackupPanel({ onExportEdits, onImportEdits }) {
   return (
     <div>
       <p style={{ margin: "0 0 14px", color: "var(--muted)", fontSize: 14, lineHeight: 1.6 }}>
-        Preview links change often. Download a backup of your writing and theme so you can restore it
-        on a new link.
+        Edits already auto-save on this link when you close the tab. Download a backup file too, so
+        you can restore your writing if the preview link ever changes.
       </p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 12 }}>
         <button type="button" className="aa-btn" style={s.addProductBtn} onClick={exportEdits}>

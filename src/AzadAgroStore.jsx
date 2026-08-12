@@ -42,11 +42,14 @@ import {
   localKey,
   mergeSite,
   mergeTheme,
+  readBackupBundle,
   readJson,
+  setBundleFlush,
   setManufacturersFlush,
   setSiteFlush,
   setThemeFlush,
   sharedKey,
+  writeBackupBundle,
   writeJson,
 } from "./persistence";
 
@@ -57,16 +60,19 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
   const [cart, setCart] = useState({});
   const [cartOpen, setCartOpen] = useState(false);
   const [order, setOrder] = useState(null);
-  const [site, setSite] = useState(() =>
-    mergeSite(DEFAULT_MARKETPLACE, readJson(sharedKey("site-config-v2"), null))
-  );
+  const [site, setSite] = useState(() => {
+    const saved = readJson(sharedKey("site-config-v2"), null) || readBackupBundle()?.site || null;
+    return mergeSite(DEFAULT_MARKETPLACE, saved);
+  });
   const [manufacturers, setManufacturers] = useState(() => {
-    const saved = readJson(sharedKey("manufacturers-v2"), null);
+    const saved =
+      readJson(sharedKey("manufacturers-v2"), null) || readBackupBundle()?.manufacturers || null;
     return Array.isArray(saved) && saved.length ? saved : DEFAULT_MANUFACTURERS;
   });
-  const [theme, setTheme] = useState(() =>
-    mergeTheme(DEFAULT_THEME, readJson(sharedKey("theme-v2"), null))
-  );
+  const [theme, setTheme] = useState(() => {
+    const saved = readJson(sharedKey("theme-v2"), null) || readBackupBundle()?.theme || null;
+    return mergeTheme(DEFAULT_THEME, saved);
+  });
   const [activeColorSection, setActiveColorSection] = useState(null);
   const [loaded, setLoaded] = useState(false);
   const [logoCropSource, setLogoCropSource] = useState(null);
@@ -98,6 +104,15 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
     setThemeFlush(() => writeJson(sharedKey("theme-v2"), themeRef.current));
     setSiteFlush(() => writeJson(sharedKey("site-config-v2"), siteRef.current));
     setManufacturersFlush(() => writeJson(sharedKey("manufacturers-v2"), manufacturersRef.current));
+    setBundleFlush(() =>
+      writeBackupBundle({
+        version: 1,
+        savedAt: new Date().toISOString(),
+        site: siteRef.current,
+        theme: themeRef.current,
+        manufacturers: manufacturersRef.current,
+      })
+    );
   }, []);
 
   useEffect(() => {
@@ -159,8 +174,15 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
     siteRef.current = next;
     try {
       writeJson(sharedKey("site-config-v2"), next);
+      writeBackupBundle({
+        version: 1,
+        savedAt: new Date().toISOString(),
+        site: next,
+        theme: themeRef.current,
+        manufacturers: manufacturersRef.current,
+      });
       await window.storage.set("site-config-v2", JSON.stringify(next), true);
-      flash("Saved");
+      flash("Saved on this link");
     } catch {
       flash("Save failed — try again");
     }
@@ -172,8 +194,15 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
       siteRef.current = next;
       try {
         writeJson(sharedKey("site-config-v2"), next);
+        writeBackupBundle({
+          version: 1,
+          savedAt: new Date().toISOString(),
+          site: next,
+          theme: themeRef.current,
+          manufacturers: manufacturersRef.current,
+        });
         window.storage.set("site-config-v2", JSON.stringify(next), true).catch(() => {});
-        flash("Saved");
+        flash("Saved on this link");
       } catch {
         flash("Save failed — try again");
       }
@@ -186,8 +215,15 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
     manufacturersRef.current = next;
     try {
       writeJson(sharedKey("manufacturers-v2"), next);
+      writeBackupBundle({
+        version: 1,
+        savedAt: new Date().toISOString(),
+        site: siteRef.current,
+        theme: themeRef.current,
+        manufacturers: next,
+      });
       await window.storage.set("manufacturers-v2", JSON.stringify(next), true);
-      flash("Saved");
+      flash("Saved on this link");
     } catch {
       flash("Save failed — try again");
     }
@@ -201,8 +237,15 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
       manufacturersRef.current = next;
       try {
         writeJson(sharedKey("manufacturers-v2"), next);
+        writeBackupBundle({
+          version: 1,
+          savedAt: new Date().toISOString(),
+          site: siteRef.current,
+          theme: themeRef.current,
+          manufacturers: next,
+        });
         window.storage.set("manufacturers-v2", JSON.stringify(next), true).catch(() => {});
-        flash("Saved");
+        flash("Saved on this link");
       } catch {
         flash("Save failed — try again");
       }
@@ -223,7 +266,7 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
     themeSaveTimer.current = setTimeout(async () => {
       try {
         await window.storage.set("theme-v2", JSON.stringify(next), true);
-        flash("Saved");
+        flash("Saved on this link");
       } catch {
         flash("Save failed — try again");
       }
@@ -590,6 +633,23 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
       `}</style>
 
         {savedFlash && <div style={s.flash}>{savedFlash}</div>}
+
+        {isAdmin && (
+          <div
+            style={{
+              background: "color-mix(in srgb, var(--accent) 16%, var(--paper))",
+              borderBottom: "1px solid var(--border)",
+              color: "var(--ink)",
+              fontSize: 13,
+              lineHeight: 1.5,
+              padding: "8px 16px",
+              textAlign: "center",
+            }}
+          >
+            Edits auto-save on this link — closing the tab is safe. Keep using the same URL.
+            For a file copy, open Settings → Backup → Download backup.
+          </div>
+        )}
 
         <SectionColorAnchor sectionId="header" as="header" style={s.header}>
           <div style={s.headerInner}>
