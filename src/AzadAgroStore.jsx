@@ -1220,7 +1220,7 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
                     cat: (activeManufacturer.products[0] || {}).cat || "Grains",
                     unit: "",
                     price: 0,
-                    icon: "leaf",
+                    icon: "plant",
                     image: "",
                     note: "",
                     featured: false,
