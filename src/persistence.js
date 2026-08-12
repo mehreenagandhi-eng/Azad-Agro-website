@@ -139,6 +139,7 @@ export function mergeSite(defaults, saved) {
       customTextSections: { ...(defaults.customTextSections || {}) },
       sectionStacks: { ...(defaults.sectionStacks || {}) },
       hiddenBuiltins: { ...(defaults.hiddenBuiltins || {}) },
+      sectionPhotos: { ...(defaults.sectionPhotos || {}) },
     };
   }
   return {
@@ -156,6 +157,10 @@ export function mergeSite(defaults, saved) {
     hiddenBuiltins: {
       ...(defaults.hiddenBuiltins || {}),
       ...(saved.hiddenBuiltins || {}),
+    },
+    sectionPhotos: {
+      ...(defaults.sectionPhotos || {}),
+      ...(saved.sectionPhotos || {}),
     },
   };
 }

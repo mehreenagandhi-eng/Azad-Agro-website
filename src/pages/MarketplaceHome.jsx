@@ -17,12 +17,13 @@ export function MarketplaceHome({ marketplace, isAdmin = false, onUpdateMarketpl
     }));
   };
 
-  const onStackChange = ({ stack, customSections, hiddenBuiltins }) => {
+  const onStackChange = ({ stack, customSections, hiddenBuiltins, sectionPhotos }) => {
     onUpdateMarketplace?.((prev) => ({
       ...prev,
       sectionStacks: { ...(prev.sectionStacks || {}), home: stack },
       customTextSections: { ...(prev.customTextSections || {}), home: customSections },
       hiddenBuiltins: { ...(prev.hiddenBuiltins || {}), home: hiddenBuiltins },
+      sectionPhotos: { ...(prev.sectionPhotos || {}), home: sectionPhotos },
     }));
   };
 
@@ -120,6 +121,7 @@ export function MarketplaceHome({ marketplace, isAdmin = false, onUpdateMarketpl
           stack={marketplace.sectionStacks?.home}
           hiddenBuiltins={marketplace.hiddenBuiltins?.home || []}
           customSections={marketplace.customTextSections?.home || []}
+          sectionPhotos={marketplace.sectionPhotos?.home || {}}
           onChange={onStackChange}
         />
       </div>

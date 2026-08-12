@@ -7,6 +7,7 @@ import { CoverPhotoBlock } from "../components/CoverPhotoBlock";
 import { SectionColorAnchor, SectionColorControl } from "../components/SectionColorControl";
 import { PageSectionStack } from "../components/PageSectionStack";
 import { isSectionVisible } from "../components/RemovableSection";
+import { ResolvedImage } from "../components/ResolvedImage";
 const TABS = [
   { id: "order", labelKey: "orderNowLabel", fallback: "Order Now" },
   { id: "story", labelKey: "ourStoryLabel", fallback: "Our Story" },
@@ -72,12 +73,13 @@ export function ManufacturerPage({
         (id) => !sectionVisible(id)
       );
 
-  const onStoryStackChange = ({ stack, customSections, hiddenBuiltins }) => {
+  const onStoryStackChange = ({ stack, customSections, hiddenBuiltins, sectionPhotos }) => {
     onUpdateManufacturer?.((prev) => ({
       ...prev,
       sectionStack: stack,
       customTextSections: customSections,
       hiddenBuiltins,
+      sectionPhotos: sectionPhotos || {},
     }));
   };
 
@@ -114,7 +116,7 @@ export function ManufacturerPage({
               <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 12 }}>
                 <div style={s.mfgCardLogoWrap}>
                   {manufacturer.logo ? (
-                    <img src={manufacturer.logo} alt="" style={s.mfgCardLogo} />
+                    <ResolvedImage src={manufacturer.logo} alt="" style={s.mfgCardLogo} />
                   ) : (
                     <div style={s.mfgCardLogoFallback}>
                       <Icon name="leaf" size={30} />
@@ -176,6 +178,7 @@ export function ManufacturerPage({
             stack={manufacturer.sectionStack}
             hiddenBuiltins={storyHidden}
             customSections={manufacturer.customTextSections || []}
+            sectionPhotos={manufacturer.sectionPhotos || {}}
             onChange={onStoryStackChange}
             renderBuiltin={(id) => {
               if (id === "mfgStory") {

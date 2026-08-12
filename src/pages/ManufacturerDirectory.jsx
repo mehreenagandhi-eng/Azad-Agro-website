@@ -4,6 +4,7 @@ import { Icon } from "../components/Icon";
 import { EditableText } from "../components/EditableText";
 import { SectionColorAnchor, SectionColorControl } from "../components/SectionColorControl";
 import { PageSectionStack } from "../components/PageSectionStack";
+import { ResolvedImage } from "../components/ResolvedImage";
 
 export function ManufacturerCard({
   mfg,
@@ -23,7 +24,7 @@ export function ManufacturerCard({
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
         <div style={s.mfgCardLogoWrap}>
           {mfg.logo ? (
-            <img src={mfg.logo} alt="" style={s.mfgCardLogo} />
+            <ResolvedImage src={mfg.logo} alt="" style={s.mfgCardLogo} />
           ) : (
             <div style={s.mfgCardLogoFallback}>
               <Icon name="leaf" size={30} />
@@ -175,12 +176,14 @@ export function ManufacturerDirectory({
           stack={marketplace.sectionStacks?.directory}
           hiddenBuiltins={marketplace.hiddenBuiltins?.directory || []}
           customSections={marketplace.customTextSections?.directory || []}
-          onChange={({ stack, customSections, hiddenBuiltins }) => {
+          sectionPhotos={marketplace.sectionPhotos?.directory || {}}
+          onChange={({ stack, customSections, hiddenBuiltins, sectionPhotos }) => {
             onUpdateMarketplace?.((prev) => ({
               ...prev,
               sectionStacks: { ...(prev.sectionStacks || {}), directory: stack },
               customTextSections: { ...(prev.customTextSections || {}), directory: customSections },
               hiddenBuiltins: { ...(prev.hiddenBuiltins || {}), directory: hiddenBuiltins },
+              sectionPhotos: { ...(prev.sectionPhotos || {}), directory: sectionPhotos },
             }));
           }}
         />

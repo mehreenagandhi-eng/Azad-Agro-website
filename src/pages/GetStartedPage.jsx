@@ -95,12 +95,13 @@ export function GetStartedPage({
     }));
   };
 
-  const onStackChange = ({ stack, customSections, hiddenBuiltins }) => {
+  const onStackChange = ({ stack, customSections, hiddenBuiltins, sectionPhotos }) => {
     onUpdateMarketplace?.((prev) => ({
       ...prev,
       sectionStacks: { ...(prev.sectionStacks || {}), getstarted: stack },
       customTextSections: { ...(prev.customTextSections || {}), getstarted: customSections },
       hiddenBuiltins: { ...(prev.hiddenBuiltins || {}), getstarted: hiddenBuiltins },
+      sectionPhotos: { ...(prev.sectionPhotos || {}), getstarted: sectionPhotos },
     }));
   };
 
@@ -135,6 +136,7 @@ export function GetStartedPage({
           stack={marketplace.sectionStacks?.getstarted}
           hiddenBuiltins={marketplace.hiddenBuiltins?.getstarted || []}
           customSections={marketplace.customTextSections?.getstarted || []}
+          sectionPhotos={marketplace.sectionPhotos?.getstarted || {}}
           onChange={onStackChange}
           renderBuiltin={(id) => {
             if (id === "buyerSteps") {

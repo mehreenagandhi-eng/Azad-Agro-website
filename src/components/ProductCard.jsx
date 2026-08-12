@@ -3,6 +3,7 @@ import { rupee } from "../data/defaults";
 import { s } from "../styles";
 import { ProductVisual } from "./Icon";
 import { EditableText } from "./EditableText";
+import { useResolvedPhoto } from "./ResolvedImage";
 
 export function ProductCard({
   p,
@@ -16,7 +17,8 @@ export function ProductCard({
   onDelete,
   ribbon,
 }) {
-  const hasImage = Boolean(p?.image);
+  const resolvedImage = useResolvedPhoto(p?.image || "");
+  const hasImage = Boolean(resolvedImage);
   const addLabel = copy?.addButtonLabel ?? "Add";
 
   const adminBar = isAdmin && (
@@ -71,7 +73,7 @@ export function ProductCard({
 
   if (hasImage) {
     return (
-      <article style={{ ...s.cardWithBg, backgroundImage: `url(${p.image})` }}>
+      <article style={{ ...s.cardWithBg, backgroundImage: `url(${resolvedImage})` }}>
         {ribbon && <span style={s.cardRibbon}>{ribbon}</span>}
         {adminBar}
         <div style={s.cardOverlay} />

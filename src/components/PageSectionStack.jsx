@@ -1,11 +1,13 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { EditableText } from "./EditableText";
+import { SectionPhoto } from "./SectionPhoto";
 import {
   builtinLabel,
   newCustomSection,
   resolveSectionStack,
 } from "../data/sectionStacks";
+import { persistPhoto } from "../mediaStore";
 import { s } from "../styles";
 
 function ColorPopover({ item, onPatch, onClose, anchorRef }) {
@@ -197,13 +199,14 @@ function SectionShell({
 }
 
 function CustomBlock({ item, isAdmin, onUpdate }) {
-  const shellStyle = {
-    ...(item.bg ? { background: item.bg } : null),
-    ...(item.text ? { color: item.text } : null),
-  };
-
   return (
-    <div style={shellStyle}>
+    <div>
+      <SectionPhoto
+        photo={item.photo || ""}
+        isAdmin={isAdmin}
+        label="section photo"
+        onChange={(photo) => onUpdate?.(item.id, { photo })}
+      />
       <EditableText
         id={`cts_${item.id}_h`}
         isAdmin={isAdmin}
@@ -318,6 +321,7 @@ export function PageSectionStack({
   stack,
   hiddenBuiltins = [],
   customSections = [],
+  sectionPhotos = {},
   onChange,
   renderBuiltin,
   addLabel = "+ Add text section",
@@ -325,10 +329,10 @@ export function PageSectionStack({
 }) {
   const customs = Array.isArray(customSections) ? customSections : [];
   const hidden = Array.isArray(hiddenBuiltins) ? hiddenBuiltins : [];
+  const photos = sectionPhotos && typeof sectionPhotos === "object" ? sectionPhotos : {};
 
   const entries = useMemo(() => {
     const resolved = resolveSectionStack(pageKey, stack, customs);
-    // Do not auto-add builtins that were explicitly hidden
     const hiddenSet = new Set(hidden);
     const defaultsMissing = resolveSectionStack(pageKey, null, [])
       .filter((e) => e.type === "builtin" && !hiddenSet.has(e.id))
@@ -342,16 +346,24 @@ export function PageSectionStack({
   customsRef.current = customs;
   const hiddenRef = useRef(hidden);
   hiddenRef.current = hidden;
+  const photosRef = useRef(photos);
+  photosRef.current = photos;
 
   const dragIdRef = useRef(null);
   const [dragId, setDragId] = useState(null);
   const [dropTargetId, setDropTargetId] = useState(null);
 
-  const emit = (nextEntries, nextCustoms = customsRef.current, nextHidden = hiddenRef.current) => {
+  const emit = (
+    nextEntries,
+    nextCustoms = customsRef.current,
+    nextHidden = hiddenRef.current,
+    nextPhotos = photosRef.current
+  ) => {
     onChange?.({
       stack: nextEntries,
       customSections: nextCustoms,
       hiddenBuiltins: nextHidden,
+      sectionPhotos: nextPhotos,
     });
   };
 
@@ -422,17 +434,25 @@ export function PageSectionStack({
   const deleteEntry = (entry) => {
     const nextEntries = entriesRef.current.filter((e) => e.id !== entry.id);
     if (entry.type === "custom") {
+      const doomed = customsRef.current.find((c) => c.id === entry.id);
+      if (doomed?.photo) persistPhoto("", doomed.photo).catch(() => {});
       emit(
         nextEntries,
         customsRef.current.filter((c) => c.id !== entry.id),
-        hiddenRef.current
+        hiddenRef.current,
+        photosRef.current
       );
       return;
     }
     const nextHidden = hiddenRef.current.includes(entry.id)
       ? hiddenRef.current
       : [...hiddenRef.current, entry.id];
-    emit(nextEntries, customsRef.current, nextHidden);
+    const nextPhotos = { ...photosRef.current };
+    if (nextPhotos[entry.id]) {
+      persistPhoto("", nextPhotos[entry.id]).catch(() => {});
+      delete nextPhotos[entry.id];
+    }
+    emit(nextEntries, customsRef.current, nextHidden, nextPhotos);
   };
 
   const restoreBuiltin = (id) => {
@@ -444,6 +464,13 @@ export function PageSectionStack({
   const updateCustom = (id, partial) => {
     const nextCustoms = customsRef.current.map((c) => (c.id === id ? { ...c, ...partial } : c));
     emit(entriesRef.current, nextCustoms, hiddenRef.current);
+  };
+
+  const setBuiltinPhoto = (id, photo) => {
+    emit(entriesRef.current, customsRef.current, hiddenRef.current, {
+      ...photosRef.current,
+      [id]: photo || "",
+    });
   };
 
   const addCustom = () => {
@@ -465,9 +492,10 @@ export function PageSectionStack({
 
   return (
     <div style={s.customTextSectionsWrap}>
-      {isAdmin && entries.length > 1 && (
+      {isAdmin && entries.length > 0 && (
         <p style={s.customTextReorderHint}>
-          Drag any block with ⋮⋮ (or use ↑ ↓) to change the order of all writing on this page.
+          Drag blocks with ⋮⋮ to reorder. Upload a photo on any section — files are saved in this
+          browser so a refresh keeps your writing and images on this same link.
         </p>
       )}
 
@@ -519,6 +547,12 @@ export function PageSectionStack({
             onMove={moveItem}
             onDelete={deleteEntry}
           >
+            <SectionPhoto
+              photo={photos[entry.id] || ""}
+              isAdmin={isAdmin}
+              label="section photo"
+              onChange={(photo) => setBuiltinPhoto(entry.id, photo)}
+            />
             {builtin}
           </SectionShell>
         );

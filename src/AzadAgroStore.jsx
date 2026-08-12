@@ -53,6 +53,8 @@ import {
   writeJson,
 } from "./persistence";
 import { loadPublishedSite, publishedHasContent } from "./publishedSite";
+import { persistPhoto } from "./mediaStore";
+import { useResolvedPhoto } from "./components/ResolvedImage";
 
 export default function AzadAgroStore({ clerkEnabled = false }) {
   const [view, setView] = useState("home");
@@ -92,6 +94,7 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
   const [savedFlash, setSavedFlash] = useState("");
   const [editingProduct, setEditingProduct] = useState(null);
   const [editingManufacturer, setEditingManufacturer] = useState(null);
+  const resolvedHeaderLogo = useResolvedPhoto(site.headerLogo || "");
 
   const siteRef = React.useRef(site);
   const themeRef = React.useRef(theme);
@@ -715,7 +718,7 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
             >
               <span style={s.logoMark}>
                 <img
-                  src={site.headerLogo || LOGO_SRC}
+                  src={resolvedHeaderLogo || LOGO_SRC}
                   alt=""
                   style={{ width: "100%", height: "100%", objectFit: "contain" }}
                 />
@@ -1112,8 +1115,9 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
               source={logoCropSource}
               aspect={1}
               onCancel={() => setLogoCropSource(null)}
-              onConfirm={(dataUrl) => {
-                saveSite((prev) => ({ ...prev, headerLogo: dataUrl }));
+              onConfirm={async (dataUrl) => {
+                const ref = await persistPhoto(dataUrl, siteRef.current?.headerLogo || "");
+                saveSite((prev) => ({ ...prev, headerLogo: ref }));
                 setLogoCropSource(null);
               }}
             />

@@ -54,6 +54,7 @@ export const DEFAULT_MANUFACTURERS = [
     customTextSections: [],
     sectionStack: null,
     hiddenBuiltins: [],
+    sectionPhotos: {},
   },
 ];
 
@@ -168,11 +169,11 @@ export const DEFAULT_MARKETPLACE = {
     mission: null,
     getstarted: null,
   },
-  hiddenBuiltins: {
-    home: [],
-    directory: [],
-    mission: [],
-    getstarted: [],
+  sectionPhotos: {
+    home: {},
+    directory: {},
+    mission: {},
+    getstarted: {},
   },
 };
 

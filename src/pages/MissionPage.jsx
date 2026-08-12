@@ -19,12 +19,13 @@ export function MissionPage({
     }));
   };
 
-  const onStackChange = ({ stack, customSections, hiddenBuiltins }) => {
+  const onStackChange = ({ stack, customSections, hiddenBuiltins, sectionPhotos }) => {
     onUpdateMarketplace?.((prev) => ({
       ...prev,
       sectionStacks: { ...(prev.sectionStacks || {}), mission: stack },
       customTextSections: { ...(prev.customTextSections || {}), mission: customSections },
       hiddenBuiltins: { ...(prev.hiddenBuiltins || {}), mission: hiddenBuiltins },
+      sectionPhotos: { ...(prev.sectionPhotos || {}), mission: sectionPhotos },
     }));
   };
 
@@ -59,6 +60,7 @@ export function MissionPage({
           stack={marketplace.sectionStacks?.mission}
           hiddenBuiltins={marketplace.hiddenBuiltins?.mission || []}
           customSections={marketplace.customTextSections?.mission || []}
+          sectionPhotos={marketplace.sectionPhotos?.mission || {}}
           onChange={onStackChange}
           renderBuiltin={(id) => {
             if (id === "missionBody") {

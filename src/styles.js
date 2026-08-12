@@ -2252,4 +2252,33 @@ export const s = {
     gap: 10,
     marginTop: 8,
   },
+
+  sectionPhotoWrap: {
+    marginBottom: 14,
+  },
+
+  sectionPhotoFrame: {
+    borderRadius: 12,
+    overflow: "hidden",
+    border: "1px solid color-mix(in srgb, var(--border) 80%, transparent)",
+    background: "color-mix(in srgb, var(--ink) 4%, var(--paper))",
+    aspectRatio: "16 / 9",
+  },
+
+  sectionPhotoImg: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    display: "block",
+  },
+
+  sectionPhotoEmpty: {
+    borderRadius: 12,
+    border: "1px dashed var(--border)",
+    padding: "18px 14px",
+    color: "var(--muted)",
+    fontSize: 13,
+    textAlign: "center",
+    background: "color-mix(in srgb, var(--ink) 3%, var(--paper))",
+  },
 };

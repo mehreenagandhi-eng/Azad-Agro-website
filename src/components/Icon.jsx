@@ -30,10 +30,13 @@ export function Icon({ name = "leaf", size = 64, style }) {
   );
 }
 
+import React from "react";
+import { ResolvedImage, useResolvedPhoto } from "./ResolvedImage";
+
 export function ProductVisual({ p, size = 64, style }) {
   if (p?.image) {
     return (
-      <img
+      <ResolvedImage
         src={p.image}
         alt={p.name || ""}
         style={{

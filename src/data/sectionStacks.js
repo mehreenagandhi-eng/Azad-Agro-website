@@ -77,8 +77,9 @@ export function newCustomSection() {
   return {
     id: customSectionId(),
     heading: "New text section",
-    body: "Write your content here. Drag ⋮⋮ to move this block anywhere on the page.",
+    body: "Write your content here. Drag ⋮⋮ to move this block anywhere on the page. Upload a photo for this section too.",
     bg: "",
     text: "",
+    photo: "",
   };
 }

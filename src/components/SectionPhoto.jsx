@@ -1,18 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import { s } from "../styles";
-import { EditableText } from "./EditableText";
 import { ImageCropper } from "./ImageCropper";
 import { Modal } from "./Modal";
-import { Icon } from "./Icon";
 import { persistPhoto, resolvePhotoSrc } from "../mediaStore";
 
-export function CoverPhotoBlock({
-  photo,
-  caption,
-  isAdmin,
-  onPhotoChange,
-  onCaptionChange,
-  placeholder = "Upload a cover photo",
+/**
+ * Photo upload for any page section. Stores files in IndexedDB (media: refs)
+ * so refresh keeps images even when localStorage is full.
+ */
+export function SectionPhoto({
+  photo = "",
+  isAdmin = false,
+  onChange,
+  aspect = 16 / 9,
+  label = "Photo",
 }) {
   const fileRef = useRef(null);
   const [cropSource, setCropSource] = useState(null);
@@ -30,19 +31,17 @@ export function CoverPhotoBlock({
     };
   }, [photo]);
 
-  const openPicker = () => fileRef.current?.click();
-
   const onFile = (e) => {
     const file = e.target.files?.[0];
     e.target.value = "";
-    if (file) setCropSource(file);
+    if (file && file.type.startsWith("image/")) setCropSource(file);
   };
 
   const onCropComplete = async (dataUrl) => {
     setBusy(true);
     try {
       const ref = await persistPhoto(dataUrl, photo);
-      onPhotoChange?.(ref);
+      onChange?.(ref);
       setSrc(dataUrl);
     } finally {
       setBusy(false);
@@ -54,65 +53,50 @@ export function CoverPhotoBlock({
     setBusy(true);
     try {
       await persistPhoto("", photo);
-      onPhotoChange?.("");
+      onChange?.("");
       setSrc("");
     } finally {
       setBusy(false);
     }
   };
 
+  if (!isAdmin && !src) return null;
+
   return (
-    <div style={s.farmPhotoWrap}>
-      <div style={s.farmPhotoFrame}>
-        {src ? (
-          <img src={src} alt="" style={s.farmPhotoImg} />
-        ) : (
-          <div style={s.farmPhotoPlaceholder}>
-            <div style={{ color: "var(--accent2)" }}>
-              <Icon name="leaf" size={42} />
-            </div>
-            <span>No photo yet</span>
-          </div>
-        )}
-      </div>
+    <div style={s.sectionPhotoWrap}>
+      {src ? (
+        <div style={s.sectionPhotoFrame}>
+          <img src={src} alt="" style={s.sectionPhotoImg} />
+        </div>
+      ) : (
+        isAdmin && <div style={s.sectionPhotoEmpty}>No photo yet — upload one for this section</div>
+      )}
 
       {isAdmin && (
-        <div style={{ ...s.uploadRow, justifyContent: "center", marginTop: 12 }}>
+        <div style={{ ...s.uploadRow, marginTop: 10 }}>
           <input ref={fileRef} type="file" accept="image/*" hidden onChange={onFile} />
           <button
             type="button"
             className="aa-btn"
             style={s.uploadBtn}
             disabled={busy}
-            onClick={openPicker}
+            onClick={() => fileRef.current?.click()}
           >
-            📷 {src ? "Change photo" : "Upload photo"}
+            📷 {src ? `Change ${label.toLowerCase()}` : `Upload ${label.toLowerCase()}`}
           </button>
           {src && (
             <button type="button" style={s.removePhotoBtn} disabled={busy} onClick={remove}>
-              Remove
+              Remove photo
             </button>
           )}
         </div>
       )}
 
-      {(caption || isAdmin) && (
-        <div style={s.farmPhotoCaption}>
-          <EditableText
-            id="txt38"
-            isAdmin={isAdmin}
-            value={caption || placeholder}
-            onSave={onCaptionChange}
-            textStyle={{ fontFamily: "inherit", fontSize: "inherit", color: "inherit", fontStyle: "inherit" }}
-          />
-        </div>
-      )}
-
       {cropSource && (
-        <Modal title="Crop cover photo" onClose={() => setCropSource(null)}>
+        <Modal title={`Crop ${label.toLowerCase()}`} onClose={() => setCropSource(null)}>
           <ImageCropper
             source={cropSource}
-            aspect={4 / 3}
+            aspect={aspect}
             onComplete={onCropComplete}
             onCancel={() => setCropSource(null)}
           />

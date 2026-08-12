@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { s } from "../styles";
 import { Modal } from "./Modal";
 import { ImageCropper } from "./ImageCropper";
+import { persistPhoto } from "../mediaStore";
 
 export function ManufacturerEditModal({ manufacturer, onCancel, onSave }) {
   const [form, setForm] = useState({ ...manufacturer });
@@ -128,8 +129,9 @@ export function ManufacturerEditModal({ manufacturer, onCancel, onSave }) {
             source={cropSource}
             aspect={1}
             onCancel={() => setCropSource(null)}
-            onComplete={(dataUrl) => {
-              patch({ logo: dataUrl });
+            onComplete={async (dataUrl) => {
+              const ref = await persistPhoto(dataUrl, form.logo);
+              patch({ logo: ref });
               setCropSource(null);
             }}
           />

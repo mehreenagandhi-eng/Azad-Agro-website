@@ -1,13 +1,26 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { s } from "../styles";
 import { Modal } from "./Modal";
 import { ImageCropper } from "./ImageCropper";
 import { Icon, ICON_KEYS } from "./Icon";
+import { persistPhoto, resolvePhotoSrc } from "../mediaStore";
 
 export function ProductEditModal({ product, categories, onCancel, onSave }) {
   const [form, setForm] = useState({ ...product });
   const [cropSource, setCropSource] = useState(null);
+  const [preview, setPreview] = useState("");
   const fileRef = useRef(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const src = await resolvePhotoSrc(form.image);
+      if (!cancelled) setPreview(src || "");
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [form.image]);
 
   const patch = (partial) => setForm((prev) => ({ ...prev, ...partial }));
 
@@ -133,9 +146,9 @@ export function ProductEditModal({ product, categories, onCancel, onSave }) {
 
         <div style={s.formRow}>
           <span style={s.label}>Product image</span>
-          {form.image ? (
+          {preview ? (
             <img
-              src={form.image}
+              src={preview}
               alt=""
               style={{
                 width: "100%",
@@ -170,10 +183,17 @@ export function ProductEditModal({ product, categories, onCancel, onSave }) {
           <div style={s.uploadRow}>
             <input ref={fileRef} type="file" accept="image/*" hidden onChange={onFile} />
             <button type="button" style={s.uploadBtn} onClick={openPicker}>
-              {form.image ? "Replace image" : "Upload image"}
+              {preview ? "Replace image" : "Upload image"}
             </button>
-            {form.image && (
-              <button type="button" style={s.removePhotoBtn} onClick={() => patch({ image: "" })}>
+            {preview && (
+              <button
+                type="button"
+                style={s.removePhotoBtn}
+                onClick={async () => {
+                  await persistPhoto("", form.image);
+                  patch({ image: "" });
+                }}
+              >
                 Remove
               </button>
             )}
@@ -231,8 +251,9 @@ export function ProductEditModal({ product, categories, onCancel, onSave }) {
             source={cropSource}
             aspect={6 / 7}
             onCancel={() => setCropSource(null)}
-            onComplete={(dataUrl) => {
-              patch({ image: dataUrl });
+            onComplete={async (dataUrl) => {
+              const ref = await persistPhoto(dataUrl, form.image);
+              patch({ image: ref });
               setCropSource(null);
             }}
           />
