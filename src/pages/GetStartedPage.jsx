@@ -2,7 +2,7 @@ import React from "react";
 import { s } from "../styles";
 import { EditableText } from "../components/EditableText";
 import { SectionColorAnchor, SectionColorControl } from "../components/SectionColorControl";
-import { CustomTextSections } from "../components/CustomTextSections";
+import { PageSectionStack } from "../components/PageSectionStack";
 
 function StepSection({
   heading,
@@ -16,7 +16,7 @@ function StepSection({
   onStepsChange,
 }) {
   return (
-    <section style={s.stepSection}>
+    <>
       <EditableText
         id={headingId}
         isAdmin={isAdmin}
@@ -74,7 +74,7 @@ function StepSection({
           + Add step
         </button>
       )}
-    </section>
+    </>
   );
 }
 
@@ -92,6 +92,15 @@ export function GetStartedPage({
     onUpdateMarketplace((prev) => ({
       ...prev,
       [field]: typeof value === "function" ? value(prev[field]) : value,
+    }));
+  };
+
+  const onStackChange = ({ stack, customSections, hiddenBuiltins }) => {
+    onUpdateMarketplace?.((prev) => ({
+      ...prev,
+      sectionStacks: { ...(prev.sectionStacks || {}), getstarted: stack },
+      customTextSections: { ...(prev.customTextSections || {}), getstarted: customSections },
+      hiddenBuiltins: { ...(prev.hiddenBuiltins || {}), getstarted: hiddenBuiltins },
     }));
   };
 
@@ -120,51 +129,68 @@ export function GetStartedPage({
 
       <div style={{ ...s.pageBody, position: "relative" }}>
         <SectionColorControl sectionId="contentpanels" />
-        <StepSection
-          heading={marketplace.buyerHeading}
-          intro={marketplace.buyerIntro}
-          steps={marketplace.buyerSteps || []}
-          headingId="txt35"
-          introId="txt36"
+        <PageSectionStack
+          pageKey="getstarted"
           isAdmin={isAdmin}
-          onHeadingChange={(v) => set("buyerHeading", v)}
-          onIntroChange={(v) => set("buyerIntro", v)}
-          onStepsChange={(items) => set("buyerSteps", items)}
-        />
-
-        {onBrowseManufacturers && (
-          <button type="button" style={s.shopNowBtn} onClick={onBrowseManufacturers}>
-            {marketplace.browseLabel || copy.navManufacturers || "Browse Manufacturers"}
-          </button>
-        )}
-
-        <StepSection
-          heading={marketplace.manufacturerHeading}
-          intro={marketplace.manufacturerIntro}
-          steps={marketplace.manufacturerSteps || []}
-          headingId="txt37"
-          introId="txt38"
-          isAdmin={isAdmin}
-          onHeadingChange={(v) => set("manufacturerHeading", v)}
-          onIntroChange={(v) => set("manufacturerIntro", v)}
-          onStepsChange={(items) => set("manufacturerSteps", items)}
-        />
-
-        {isAdmin && onAddManufacturer && (
-          <button type="button" style={s.addProductBtn} onClick={onAddManufacturer}>
-            {copy.addManufacturerLabel || "+ Add manufacturer"}
-          </button>
-        )}
-
-        <CustomTextSections
-          isAdmin={isAdmin}
-          sections={marketplace.customTextSections?.getstarted || []}
-          onChange={(next) =>
-            set("customTextSections", (prev) => ({
-              ...(prev || {}),
-              getstarted: next,
-            }))
-          }
+          stack={marketplace.sectionStacks?.getstarted}
+          hiddenBuiltins={marketplace.hiddenBuiltins?.getstarted || []}
+          customSections={marketplace.customTextSections?.getstarted || []}
+          onChange={onStackChange}
+          renderBuiltin={(id) => {
+            if (id === "buyerSteps") {
+              return (
+                <>
+                  <StepSection
+                    heading={marketplace.buyerHeading}
+                    intro={marketplace.buyerIntro}
+                    steps={marketplace.buyerSteps || []}
+                    headingId="txt35"
+                    introId="txt36"
+                    isAdmin={isAdmin}
+                    onHeadingChange={(v) => set("buyerHeading", v)}
+                    onIntroChange={(v) => set("buyerIntro", v)}
+                    onStepsChange={(items) => set("buyerSteps", items)}
+                  />
+                  {onBrowseManufacturers && (
+                    <button
+                      type="button"
+                      style={{ ...s.shopNowBtn, marginTop: 16 }}
+                      onClick={onBrowseManufacturers}
+                    >
+                      {marketplace.browseLabel || copy.navManufacturers || "Browse Manufacturers"}
+                    </button>
+                  )}
+                </>
+              );
+            }
+            if (id === "manufacturerSteps") {
+              return (
+                <>
+                  <StepSection
+                    heading={marketplace.manufacturerHeading}
+                    intro={marketplace.manufacturerIntro}
+                    steps={marketplace.manufacturerSteps || []}
+                    headingId="txt37"
+                    introId="txt38"
+                    isAdmin={isAdmin}
+                    onHeadingChange={(v) => set("manufacturerHeading", v)}
+                    onIntroChange={(v) => set("manufacturerIntro", v)}
+                    onStepsChange={(items) => set("manufacturerSteps", items)}
+                  />
+                  {isAdmin && onAddManufacturer && (
+                    <button
+                      type="button"
+                      style={{ ...s.addProductBtn, marginTop: 16 }}
+                      onClick={onAddManufacturer}
+                    >
+                      {copy.addManufacturerLabel || "+ Add manufacturer"}
+                    </button>
+                  )}
+                </>
+              );
+            }
+            return null;
+          }}
         />
       </div>
     </>

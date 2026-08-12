@@ -2240,4 +2240,16 @@ export const s = {
     cursor: "pointer",
     lineHeight: 1.2,
   },
+  pageSectionLabel: {
+    color: "var(--muted)",
+    fontSize: 12,
+    fontFamily: "var(--font-mono)",
+    marginLeft: 4,
+  },
+
+  hiddenSectionsRestoreList: {
+    display: "grid",
+    gap: 10,
+    marginTop: 8,
+  },
 };

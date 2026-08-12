@@ -137,6 +137,8 @@ export function mergeSite(defaults, saved) {
       ...defaults,
       copy: { ...defaults.copy },
       customTextSections: { ...(defaults.customTextSections || {}) },
+      sectionStacks: { ...(defaults.sectionStacks || {}) },
+      hiddenBuiltins: { ...(defaults.hiddenBuiltins || {}) },
     };
   }
   return {
@@ -146,6 +148,14 @@ export function mergeSite(defaults, saved) {
     customTextSections: {
       ...(defaults.customTextSections || {}),
       ...(saved.customTextSections || {}),
+    },
+    sectionStacks: {
+      ...(defaults.sectionStacks || {}),
+      ...(saved.sectionStacks || {}),
+    },
+    hiddenBuiltins: {
+      ...(defaults.hiddenBuiltins || {}),
+      ...(saved.hiddenBuiltins || {}),
     },
   };
 }

@@ -4,9 +4,9 @@ import { Icon } from "../components/Icon";
 import { EditableText, EditableList } from "../components/EditableText";
 import { ProductCard } from "../components/ProductCard";
 import { CoverPhotoBlock } from "../components/CoverPhotoBlock";
-import { RemovableSection, isSectionVisible } from "../components/RemovableSection";
 import { SectionColorAnchor, SectionColorControl } from "../components/SectionColorControl";
-import { CustomTextSections } from "../components/CustomTextSections";
+import { PageSectionStack } from "../components/PageSectionStack";
+import { isSectionVisible } from "../components/RemovableSection";
 const TABS = [
   { id: "order", labelKey: "orderNowLabel", fallback: "Order Now" },
   { id: "story", labelKey: "ourStoryLabel", fallback: "Our Story" },
@@ -65,6 +65,21 @@ export function ManufacturerPage({
       : copy.reviewBannerText;
 
   const sectionVisible = (id) => isSectionVisible(theme, id);
+
+  const storyHidden = Array.isArray(manufacturer.hiddenBuiltins)
+    ? manufacturer.hiddenBuiltins
+    : ["mfgStory", "mfgMission", "mfgValues", "mfgPractices", "mfgCert"].filter(
+        (id) => !sectionVisible(id)
+      );
+
+  const onStoryStackChange = ({ stack, customSections, hiddenBuiltins }) => {
+    onUpdateManufacturer?.((prev) => ({
+      ...prev,
+      sectionStack: stack,
+      customTextSections: customSections,
+      hiddenBuiltins,
+    }));
+  };
 
   return (
     <>
@@ -155,129 +170,99 @@ export function ManufacturerPage({
 
       <div style={s.pageBody}>
         {tab === "story" && (
-          <>
-            <RemovableSection
-              sectionId="mfgStory"
-              theme={theme}
-              isAdmin={isAdmin}
-              label={copy.ourStoryLabel || "Our Story"}
-              onToggleVisible={onToggleSectionVisible}
-            >
-              {sectionVisible("mfgStory") && (
-                <>
-                  <h2 style={s.pageSubheading}>{copy.ourStoryLabel || "Our Story"}</h2>
-                  <EditableText
-                    isAdmin={isAdmin}
-                    value={manufacturer.story}
-                    onSave={(v) => setMfg("story", v)}
-                    textStyle={s.pageParagraph}
-                    multiline
-                  />
-                </>
-              )}
-            </RemovableSection>
-
-            <RemovableSection
-              sectionId="mfgMission"
-              theme={theme}
-              isAdmin={isAdmin}
-              label={copy.missionHeading || "Our mission"}
-              onToggleVisible={onToggleSectionVisible}
-            >
-              {sectionVisible("mfgMission") && (
-                <>
-                  <h2 style={s.pageSubheading}>{copy.missionHeading || "Our mission"}</h2>
-                  <EditableText
-                    isAdmin={isAdmin}
-                    value={manufacturer.mission}
-                    onSave={(v) => setMfg("mission", v)}
-                    textStyle={s.pageParagraph}
-                    multiline
-                  />
-                </>
-              )}
-            </RemovableSection>
-
-            <RemovableSection
-              sectionId="mfgValues"
-              theme={theme}
-              isAdmin={isAdmin}
-              label={copy.valuesHeading || "What we hold ourselves to"}
-              onToggleVisible={onToggleSectionVisible}
-            >
-              {sectionVisible("mfgValues") && (
-                <>
-                  <h2 style={s.pageSubheading}>{copy.valuesHeading || "What we hold ourselves to"}</h2>
-                  <EditableList
-                    isAdmin={isAdmin}
-                    items={manufacturer.values || []}
-                    onChange={(items) => setMfg("values", items)}
-                  />
-                </>
-              )}
-            </RemovableSection>
-
-            <RemovableSection
-              sectionId="mfgPractices"
-              theme={theme}
-              isAdmin={isAdmin}
-              label={copy.practicesHeading || "How we grow"}
-              onToggleVisible={onToggleSectionVisible}
-            >
-              {sectionVisible("mfgPractices") && (
-                <>
-                  <h2 style={s.pageSubheading}>{copy.practicesHeading || "How we grow"}</h2>
-                  <EditableText
-                    isAdmin={isAdmin}
-                    value={manufacturer.practicesIntro}
-                    onSave={(v) => setMfg("practicesIntro", v)}
-                    textStyle={s.pageParagraph}
-                    multiline
-                  />
-                  <EditableList
-                    isAdmin={isAdmin}
-                    items={manufacturer.practicesPoints || []}
-                    onChange={(items) => setMfg("practicesPoints", items)}
-                  />
-                </>
-              )}
-            </RemovableSection>
-
-            <RemovableSection
-              sectionId="mfgCert"
-              theme={theme}
-              isAdmin={isAdmin}
-              label={copy.certHeading || "Certifications"}
-              onToggleVisible={onToggleSectionVisible}
-            >
-              {sectionVisible("mfgCert") && (
-                <>
-                  <h2 style={s.pageSubheading}>{copy.certHeading || "Certifications"}</h2>
-                  <EditableText
-                    isAdmin={isAdmin}
-                    value={manufacturer.certIntro}
-                    onSave={(v) => setMfg("certIntro", v)}
-                    textStyle={s.pageParagraph}
-                    multiline
-                  />
-                  <EditableList
-                    isAdmin={isAdmin}
-                    items={manufacturer.certBadges || []}
-                    onChange={(items) => setMfg("certBadges", items)}
-                    variant="badge"
-                    addLabel="+ Add badge"
-                  />
-                </>
-              )}
-            </RemovableSection>
-
-            <CustomTextSections
-              isAdmin={isAdmin}
-              sections={manufacturer.customTextSections || []}
-              onChange={(next) => setMfg("customTextSections", next)}
-              addLabel="+ Add text section"
-            />
-          </>
+          <PageSectionStack
+            pageKey="manufacturerStory"
+            isAdmin={isAdmin}
+            stack={manufacturer.sectionStack}
+            hiddenBuiltins={storyHidden}
+            customSections={manufacturer.customTextSections || []}
+            onChange={onStoryStackChange}
+            renderBuiltin={(id) => {
+              if (id === "mfgStory") {
+                return (
+                  <>
+                    <h2 style={s.pageSubheading}>{copy.ourStoryLabel || "Our Story"}</h2>
+                    <EditableText
+                      isAdmin={isAdmin}
+                      value={manufacturer.story}
+                      onSave={(v) => setMfg("story", v)}
+                      textStyle={s.pageParagraph}
+                      multiline
+                    />
+                  </>
+                );
+              }
+              if (id === "mfgMission") {
+                return (
+                  <>
+                    <h2 style={s.pageSubheading}>{copy.missionHeading || "Our mission"}</h2>
+                    <EditableText
+                      isAdmin={isAdmin}
+                      value={manufacturer.mission}
+                      onSave={(v) => setMfg("mission", v)}
+                      textStyle={s.pageParagraph}
+                      multiline
+                    />
+                  </>
+                );
+              }
+              if (id === "mfgValues") {
+                return (
+                  <>
+                    <h2 style={s.pageSubheading}>
+                      {copy.valuesHeading || "What we hold ourselves to"}
+                    </h2>
+                    <EditableList
+                      isAdmin={isAdmin}
+                      items={manufacturer.values || []}
+                      onChange={(items) => setMfg("values", items)}
+                    />
+                  </>
+                );
+              }
+              if (id === "mfgPractices") {
+                return (
+                  <>
+                    <h2 style={s.pageSubheading}>{copy.practicesHeading || "How we grow"}</h2>
+                    <EditableText
+                      isAdmin={isAdmin}
+                      value={manufacturer.practicesIntro}
+                      onSave={(v) => setMfg("practicesIntro", v)}
+                      textStyle={s.pageParagraph}
+                      multiline
+                    />
+                    <EditableList
+                      isAdmin={isAdmin}
+                      items={manufacturer.practicesPoints || []}
+                      onChange={(items) => setMfg("practicesPoints", items)}
+                    />
+                  </>
+                );
+              }
+              if (id === "mfgCert") {
+                return (
+                  <>
+                    <h2 style={s.pageSubheading}>{copy.certHeading || "Certifications"}</h2>
+                    <EditableText
+                      isAdmin={isAdmin}
+                      value={manufacturer.certIntro}
+                      onSave={(v) => setMfg("certIntro", v)}
+                      textStyle={s.pageParagraph}
+                      multiline
+                    />
+                    <EditableList
+                      isAdmin={isAdmin}
+                      items={manufacturer.certBadges || []}
+                      onChange={(items) => setMfg("certBadges", items)}
+                      variant="badge"
+                      addLabel="+ Add badge"
+                    />
+                  </>
+                );
+              }
+              return null;
+            }}
+          />
         )}
 
         {tab === "contact" && (

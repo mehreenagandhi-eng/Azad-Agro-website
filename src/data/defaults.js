@@ -52,6 +52,8 @@ export const DEFAULT_MANUFACTURERS = [
     deliveryInfo: "Free delivery on orders above ₹999. Cash on delivery available across India. Most orders ship within 2–3 days of the order being packed.",
     products: AZAD_AGRO_PRODUCTS,
     customTextSections: [],
+    sectionStack: null,
+    hiddenBuiltins: [],
   },
 ];
 
@@ -155,6 +157,18 @@ export const DEFAULT_MARKETPLACE = {
     footerDeliveryHeading: "About this marketplace",
   },
   customTextSections: {
+    home: [],
+    directory: [],
+    mission: [],
+    getstarted: [],
+  },
+  sectionStacks: {
+    home: [],
+    directory: [],
+    mission: null,
+    getstarted: null,
+  },
+  hiddenBuiltins: {
     home: [],
     directory: [],
     mission: [],

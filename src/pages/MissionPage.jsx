@@ -1,20 +1,15 @@
 import React from "react";
 import { s } from "../styles";
 import { EditableText, EditableList } from "../components/EditableText";
-import { RemovableSection, isSectionVisible } from "../components/RemovableSection";
 import { SectionColorAnchor, SectionColorControl } from "../components/SectionColorControl";
-import { CustomTextSections } from "../components/CustomTextSections";
+import { PageSectionStack } from "../components/PageSectionStack";
 
 export function MissionPage({
   marketplace,
-  theme,
   isAdmin = false,
   onUpdateMarketplace,
-  onToggleSectionVisible,
 }) {
   const copy = marketplace.copy || {};
-  const bodyVisible = isSectionVisible(theme, "missionBody");
-  const pointsVisible = isSectionVisible(theme, "missionPoints");
 
   const set = (field, value) => {
     if (!onUpdateMarketplace) return;
@@ -24,10 +19,12 @@ export function MissionPage({
     }));
   };
 
-  const setCustomSections = (next) => {
-    set("customTextSections", (prev) => ({
-      ...(prev || {}),
-      mission: next,
+  const onStackChange = ({ stack, customSections, hiddenBuiltins }) => {
+    onUpdateMarketplace?.((prev) => ({
+      ...prev,
+      sectionStacks: { ...(prev.sectionStacks || {}), mission: stack },
+      customTextSections: { ...(prev.customTextSections || {}), mission: customSections },
+      hiddenBuiltins: { ...(prev.hiddenBuiltins || {}), mission: hiddenBuiltins },
     }));
   };
 
@@ -56,50 +53,42 @@ export function MissionPage({
 
       <div style={{ ...s.pageBody, position: "relative" }}>
         <SectionColorControl sectionId="contentpanels" />
-        <RemovableSection
-          sectionId="missionBody"
-          theme={theme}
+        <PageSectionStack
+          pageKey="mission"
           isAdmin={isAdmin}
-          label="Mission body"
-          onToggleVisible={onToggleSectionVisible}
-        >
-          {bodyVisible && (
-            <EditableText
-              id="txt31"
-              isAdmin={isAdmin}
-              value={marketplace.missionBody}
-              onSave={(v) => set("missionBody", v)}
-              textStyle={s.pageParagraph}
-              multiline
-            />
-          )}
-        </RemovableSection>
-
-        <RemovableSection
-          sectionId="missionPoints"
-          theme={theme}
-          isAdmin={isAdmin}
-          label="Mission points"
-          onToggleVisible={onToggleSectionVisible}
-        >
-          {pointsVisible && (
-            <>
-              <h2 style={s.pageSubheading}>
-                {copy.missionPointsHeading || "What that means in practice"}
-              </h2>
-              <EditableList
-                isAdmin={isAdmin}
-                items={marketplace.missionPoints || []}
-                onChange={(items) => set("missionPoints", items)}
-              />
-            </>
-          )}
-        </RemovableSection>
-
-        <CustomTextSections
-          isAdmin={isAdmin}
-          sections={marketplace.customTextSections?.mission || []}
-          onChange={setCustomSections}
+          stack={marketplace.sectionStacks?.mission}
+          hiddenBuiltins={marketplace.hiddenBuiltins?.mission || []}
+          customSections={marketplace.customTextSections?.mission || []}
+          onChange={onStackChange}
+          renderBuiltin={(id) => {
+            if (id === "missionBody") {
+              return (
+                <EditableText
+                  id="txt31"
+                  isAdmin={isAdmin}
+                  value={marketplace.missionBody}
+                  onSave={(v) => set("missionBody", v)}
+                  textStyle={s.pageParagraph}
+                  multiline
+                />
+              );
+            }
+            if (id === "missionPoints") {
+              return (
+                <>
+                  <h2 style={s.pageSubheading}>
+                    {copy.missionPointsHeading || "What that means in practice"}
+                  </h2>
+                  <EditableList
+                    isAdmin={isAdmin}
+                    items={marketplace.missionPoints || []}
+                    onChange={(items) => set("missionPoints", items)}
+                  />
+                </>
+              );
+            }
+            return null;
+          }}
         />
       </div>
     </>

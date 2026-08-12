@@ -3,7 +3,7 @@ import { s } from "../styles";
 import { Icon } from "../components/Icon";
 import { EditableText } from "../components/EditableText";
 import { SectionColorAnchor, SectionColorControl } from "../components/SectionColorControl";
-import { CustomTextSections } from "../components/CustomTextSections";
+import { PageSectionStack } from "../components/PageSectionStack";
 
 export function ManufacturerCard({
   mfg,
@@ -169,15 +169,20 @@ export function ManufacturerDirectory({
           </div>
         )}
 
-        <CustomTextSections
+        <PageSectionStack
+          pageKey="directory"
           isAdmin={isAdmin}
-          sections={marketplace.customTextSections?.directory || []}
-          onChange={(next) =>
-            set("customTextSections", (prev) => ({
-              ...(prev || {}),
-              directory: next,
-            }))
-          }
+          stack={marketplace.sectionStacks?.directory}
+          hiddenBuiltins={marketplace.hiddenBuiltins?.directory || []}
+          customSections={marketplace.customTextSections?.directory || []}
+          onChange={({ stack, customSections, hiddenBuiltins }) => {
+            onUpdateMarketplace?.((prev) => ({
+              ...prev,
+              sectionStacks: { ...(prev.sectionStacks || {}), directory: stack },
+              customTextSections: { ...(prev.customTextSections || {}), directory: customSections },
+              hiddenBuiltins: { ...(prev.hiddenBuiltins || {}), directory: hiddenBuiltins },
+            }));
+          }}
         />
       </div>
     </>

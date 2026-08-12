@@ -3,10 +3,10 @@ import { s } from "../styles";
 import { EditableText } from "../components/EditableText";
 import { CoverPhotoBlock } from "../components/CoverPhotoBlock";
 import { SectionColorAnchor } from "../components/SectionColorControl";
-import { CustomTextSections } from "../components/CustomTextSections";
+import { PageSectionStack } from "../components/PageSectionStack";
 
 /**
- * Homepage: brand-forward hero, then optional custom text sections below.
+ * Homepage: brand-forward hero, then reorderable writing blocks below.
  */
 export function MarketplaceHome({ marketplace, isAdmin = false, onUpdateMarketplace }) {
   const set = (field, value) => {
@@ -14,6 +14,15 @@ export function MarketplaceHome({ marketplace, isAdmin = false, onUpdateMarketpl
     onUpdateMarketplace((prev) => ({
       ...prev,
       [field]: typeof value === "function" ? value(prev[field]) : value,
+    }));
+  };
+
+  const onStackChange = ({ stack, customSections, hiddenBuiltins }) => {
+    onUpdateMarketplace?.((prev) => ({
+      ...prev,
+      sectionStacks: { ...(prev.sectionStacks || {}), home: stack },
+      customTextSections: { ...(prev.customTextSections || {}), home: customSections },
+      hiddenBuiltins: { ...(prev.hiddenBuiltins || {}), home: hiddenBuiltins },
     }));
   };
 
@@ -105,15 +114,13 @@ export function MarketplaceHome({ marketplace, isAdmin = false, onUpdateMarketpl
       </SectionColorAnchor>
 
       <div style={s.pageBody}>
-        <CustomTextSections
+        <PageSectionStack
+          pageKey="home"
           isAdmin={isAdmin}
-          sections={marketplace.customTextSections?.home || []}
-          onChange={(next) =>
-            set("customTextSections", (prev) => ({
-              ...(prev || {}),
-              home: next,
-            }))
-          }
+          stack={marketplace.sectionStacks?.home}
+          hiddenBuiltins={marketplace.hiddenBuiltins?.home || []}
+          customSections={marketplace.customTextSections?.home || []}
+          onChange={onStackChange}
         />
       </div>
     </main>
