@@ -52,6 +52,7 @@ import {
   writeBackupBundle,
   writeJson,
 } from "./persistence";
+import { loadPublishedSite, publishedHasContent } from "./publishedSite";
 
 export default function AzadAgroStore({ clerkEnabled = false }) {
   const [view, setView] = useState("home");
@@ -125,8 +126,57 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
 
   useEffect(() => {
     let cancelled = false;
-    // Ensure defaults exist only when nothing was ever saved; never overwrite existing edits.
-    async function ensureDefaults() {
+    async function hydrate() {
+      // 1) Prefer local browser edits for this exact link
+      const localSite = readJson(sharedKey("site-config-v2"), null) || readBackupBundle()?.site || null;
+      const localTheme = readJson(sharedKey("theme-v2"), null) || readBackupBundle()?.theme || null;
+      const localMfgs =
+        readJson(sharedKey("manufacturers-v2"), null) || readBackupBundle()?.manufacturers || null;
+
+      // 2) Fall back to permanently published website content (same on every visit/link deploy)
+      let published = null;
+      if (!localSite || !localTheme || !localMfgs) {
+        published = await loadPublishedSite();
+      }
+
+      if (cancelled) return;
+
+      if (!localSite && publishedHasContent(published) && published.site) {
+        const next = mergeSite(DEFAULT_MARKETPLACE, published.site);
+        setSite(next);
+        siteRef.current = next;
+        try {
+          writeJson(sharedKey("site-config-v2"), next);
+        } catch {
+          /* ignore */
+        }
+      }
+      if (!localTheme && publishedHasContent(published) && published.theme) {
+        const next = mergeTheme(DEFAULT_THEME, published.theme);
+        setTheme(next);
+        themeRef.current = next;
+        try {
+          writeJson(sharedKey("theme-v2"), next);
+        } catch {
+          /* ignore */
+        }
+      }
+      if (
+        !(Array.isArray(localMfgs) && localMfgs.length) &&
+        publishedHasContent(published) &&
+        Array.isArray(published.manufacturers) &&
+        published.manufacturers.length
+      ) {
+        setManufacturers(published.manufacturers);
+        manufacturersRef.current = published.manufacturers;
+        try {
+          writeJson(sharedKey("manufacturers-v2"), published.manufacturers);
+        } catch {
+          /* ignore */
+        }
+      }
+
+      // Ensure storage keys exist without wiping edits
       try {
         await window.storage.get("site-config-v2", true);
       } catch {
@@ -155,7 +205,7 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
       }
       if (!cancelled) setLoaded(true);
     }
-    ensureDefaults();
+    hydrate();
     return () => {
       cancelled = true;
       flushAllPersistence();
@@ -1097,7 +1147,7 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
             onSaveProfile={saveAccountProfile}
             onExportEdits={() => ({
               version: 1,
-              exportedAt: new Date().toISOString(),
+              publishedAt: new Date().toISOString(),
               site: siteRef.current,
               theme: themeRef.current,
               manufacturers: manufacturersRef.current,

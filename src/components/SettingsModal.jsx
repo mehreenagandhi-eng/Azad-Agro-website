@@ -363,7 +363,7 @@ function BackupPanel({ onExportEdits, onImportEdits }) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `indias-organic-marketplace-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `published-site-backup-${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -412,8 +412,9 @@ function BackupPanel({ onExportEdits, onImportEdits }) {
   return (
     <div>
       <p style={{ margin: "0 0 14px", color: "var(--muted)", fontSize: 14, lineHeight: 1.6 }}>
-        Preview links expire, so writing is stored in your browser for each link. Use Backup to move
-        your text and colors to a new link.
+        Closing a tab keeps edits on the <strong>same</strong> link. To make writing/colors part of the
+        website itself (so every visit shows them), download a backup and keep that file — or paste it
+        below to restore.
       </p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 16 }}>
         <button type="button" className="aa-btn" style={s.addProductBtn} onClick={exportEdits}>

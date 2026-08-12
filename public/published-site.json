@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "publishedAt": null,
+  "note": "Canonical website content. Loaded on every visit so the same link always shows this writing/colors. Replace by importing a backup in Settings, downloading published-site.json, and committing it to public/published-site.json.",
+  "site": null,
+  "theme": null,
+  "manufacturers": null
+}
