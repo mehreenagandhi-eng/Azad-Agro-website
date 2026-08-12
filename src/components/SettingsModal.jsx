@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Show, SignInButton, SignOutButton, SignUpButton, UserButton, useClerk, useUser } from "@clerk/react";
 import { s } from "../styles";
 import { Modal } from "./Modal";
@@ -343,6 +343,81 @@ function OrdersPanel({ orders = [] }) {
   );
 }
 
+function BackupPanel({ onExportEdits, onImportEdits }) {
+  const fileRef = useRef(null);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  const exportEdits = () => {
+    setError("");
+    try {
+      const payload = onExportEdits?.();
+      if (!payload) throw new Error("Nothing to export");
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `indias-organic-marketplace-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      setMessage("Backup downloaded. Keep this file — you can import it on any new preview link.");
+    } catch (err) {
+      setError(err?.message || "Export failed");
+    }
+  };
+
+  const importEdits = async (file) => {
+    setError("");
+    setMessage("");
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      onImportEdits?.(data);
+      setMessage("Backup imported. Your text and theme edits should be back — refresh if needed.");
+    } catch (err) {
+      setError(err?.message || "Import failed — choose a valid backup JSON file.");
+    }
+  };
+
+  return (
+    <div>
+      <p style={{ margin: "0 0 14px", color: "var(--muted)", fontSize: 14, lineHeight: 1.6 }}>
+        Preview links change often. Download a backup of your writing and theme so you can restore it
+        on a new link.
+      </p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 12 }}>
+        <button type="button" className="aa-btn" style={s.addProductBtn} onClick={exportEdits}>
+          Download backup
+        </button>
+        <button
+          type="button"
+          className="aa-btn"
+          style={s.uploadBtn}
+          onClick={() => fileRef.current?.click()}
+        >
+          Import backup
+        </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="application/json,.json"
+          style={{ display: "none" }}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            importEdits(file);
+            e.target.value = "";
+          }}
+        />
+      </div>
+      {message ? <p style={{ margin: 0, color: "var(--accent)", fontSize: 13 }}>{message}</p> : null}
+      {error ? <p style={{ margin: 0, color: "var(--danger)", fontSize: 13 }}>{error}</p> : null}
+    </div>
+  );
+}
+
 export function SettingsModal({
   clerkEnabled = false,
   account = null,
@@ -350,6 +425,8 @@ export function SettingsModal({
   onSignIn,
   onSignOut,
   onSaveProfile,
+  onExportEdits,
+  onImportEdits,
   onClose,
 }) {
   const [tab, setTab] = useState("account");
@@ -371,6 +448,13 @@ export function SettingsModal({
         >
           Order history
         </button>
+        <button
+          type="button"
+          style={tab === "backup" ? { ...s.themeTab, ...s.themeTabActive } : s.themeTab}
+          onClick={() => setTab("backup")}
+        >
+          Backup
+        </button>
       </div>
 
       {tab === "account" &&
@@ -390,6 +474,10 @@ export function SettingsModal({
         ))}
 
       {tab === "orders" && <OrdersPanel orders={orders} />}
+
+      {tab === "backup" && (
+        <BackupPanel onExportEdits={onExportEdits} onImportEdits={onImportEdits} />
+      )}
     </Modal>
   );
 }

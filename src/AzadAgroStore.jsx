@@ -1035,6 +1035,46 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
             onSignIn={signInLocal}
             onSignOut={clerkEnabled ? undefined : signOutLocal}
             onSaveProfile={saveAccountProfile}
+            onExportEdits={() => ({
+              version: 1,
+              exportedAt: new Date().toISOString(),
+              site: siteRef.current,
+              theme: themeRef.current,
+              manufacturers: manufacturersRef.current,
+              orders: orders,
+            })}
+            onImportEdits={(data) => {
+              if (!data || typeof data !== "object") throw new Error("Invalid backup file");
+              if (data.site) {
+                const nextSite = mergeSite(DEFAULT_MARKETPLACE, data.site);
+                setSite(nextSite);
+                siteRef.current = nextSite;
+                writeJson(sharedKey("site-config-v2"), nextSite);
+                window.storage.set("site-config-v2", JSON.stringify(nextSite), true).catch(() => {});
+              }
+              if (data.theme) {
+                const nextTheme = mergeTheme(DEFAULT_THEME, data.theme);
+                setTheme(nextTheme);
+                themeRef.current = nextTheme;
+                writeJson(sharedKey("theme-v2"), nextTheme);
+                window.storage.set("theme-v2", JSON.stringify(nextTheme), true).catch(() => {});
+              }
+              if (Array.isArray(data.manufacturers) && data.manufacturers.length) {
+                setManufacturers(data.manufacturers);
+                manufacturersRef.current = data.manufacturers;
+                writeJson(sharedKey("manufacturers-v2"), data.manufacturers);
+                window.storage
+                  .set("manufacturers-v2", JSON.stringify(data.manufacturers), true)
+                  .catch(() => {});
+              }
+              if (Array.isArray(data.orders)) {
+                const nextOrders = data.orders.map(refreshOrderStatus);
+                setOrders(nextOrders);
+                writeJson(sharedKey("orders-v1"), nextOrders);
+                window.storage.set("orders-v1", JSON.stringify(nextOrders), true).catch(() => {});
+              }
+              flash("Backup imported");
+            }}
             onClose={() => setShowSettings(false)}
           />
         )}
