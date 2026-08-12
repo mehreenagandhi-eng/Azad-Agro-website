@@ -195,18 +195,25 @@ export const s = {
     background: "color-mix(in srgb, var(--paper) 92%, var(--accent) 8%)",
   },
 
+  removableSectionToolbar: {
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: 8,
+    marginBottom: 10,
+  },
+
   sectionRemoveBtn: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-    border: "1px solid var(--border)",
-    background: "var(--paper)",
+    position: "static",
+    border: "1px solid color-mix(in srgb, var(--danger) 45%, var(--border))",
+    background: "color-mix(in srgb, var(--danger) 12%, var(--paper))",
     color: "var(--danger)",
     borderRadius: 8,
-    padding: "4px 10px",
+    padding: "6px 12px",
     fontSize: 12,
     fontFamily: "var(--font-mono)",
+    fontWeight: 600,
     cursor: "pointer",
+    lineHeight: 1.2,
   },
 
   hiddenSectionBox: {
@@ -2162,10 +2169,62 @@ export const s = {
   customTextSectionToolbar: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
     gap: 8,
     marginBottom: 10,
     flexWrap: "wrap",
+  },
+
+  customTextReorderHint: {
+    margin: 0,
+    color: "var(--muted)",
+    fontSize: 13,
+    lineHeight: 1.5,
+  },
+
+  customTextReorderGroup: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+  },
+
+  customTextDragHandle: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: 28,
+    height: 28,
+    borderRadius: 8,
+    border: "1px solid var(--border)",
+    background: "var(--paper)",
+    color: "var(--muted)",
+    fontSize: 14,
+    letterSpacing: "-0.08em",
+    cursor: "grab",
+    userSelect: "none",
+    touchAction: "none",
+  },
+
+  customTextReorderBtn: {
+    border: "1px solid var(--border)",
+    background: "var(--paper)",
+    color: "var(--ink)",
+    borderRadius: 8,
+    width: 28,
+    height: 28,
+    padding: 0,
+    fontSize: 14,
+    lineHeight: 1,
+    cursor: "pointer",
+  },
+
+  customTextSectionDragging: {
+    opacity: 0.55,
+  },
+
+  customTextSectionDropTarget: {
+    outline: "2px solid var(--accent)",
+    outlineOffset: 2,
   },
 
   customTextDeleteBtn: {

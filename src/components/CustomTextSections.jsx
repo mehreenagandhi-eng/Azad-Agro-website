@@ -99,15 +99,34 @@ function ColorPopover({ item, onPatch, onClose, anchorRef }) {
   );
 }
 
-function CustomTextSectionBlock({ item, isAdmin, onUpdate, onRemove }) {
+function CustomTextSectionBlock({
+  item,
+  index,
+  total,
+  isAdmin,
+  onUpdate,
+  onRemove,
+  onMove,
+  dragId,
+  dropTargetId,
+  onDragStart,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  onDragEnd,
+}) {
   const btnRef = useRef(null);
   const [colorOpen, setColorOpen] = useState(false);
+  const isDragging = dragId === item.id;
+  const isDropTarget = dropTargetId === item.id && dragId && dragId !== item.id;
 
   const shellStyle = {
     ...s.customTextSection,
     ...(item.bg ? { background: item.bg } : null),
     ...(item.text ? { color: item.text } : null),
     ...(isAdmin ? s.customTextSectionAdmin : null),
+    ...(isDragging ? s.customTextSectionDragging : null),
+    ...(isDropTarget ? s.customTextSectionDropTarget : null),
   };
 
   const deleteSection = (e) => {
@@ -118,34 +137,74 @@ function CustomTextSectionBlock({ item, isAdmin, onUpdate, onRemove }) {
   };
 
   return (
-    <section style={shellStyle} data-custom-text-section={item.id}>
+    <section
+      style={shellStyle}
+      data-custom-text-section={item.id}
+      onDragOver={(e) => onDragOver?.(e, item.id)}
+      onDragLeave={() => onDragLeave?.(item.id)}
+      onDrop={(e) => onDrop?.(e, item.id)}
+    >
       {isAdmin && (
         <div style={s.customTextSectionToolbar}>
-          <button
-            ref={btnRef}
-            type="button"
-            className="aa-btn"
-            style={{
-              ...s.sectionColorBtn,
-              position: "static",
-              top: "auto",
-              right: "auto",
-              ...(colorOpen ? s.sectionColorBtnActive : null),
-            }}
-            onClick={() => setColorOpen((o) => !o)}
-          >
-            Color
-          </button>
-          <button
-            type="button"
-            style={s.customTextDeleteBtn}
-            aria-label="Delete this text section"
-            title="Delete this text box"
-            onMouseDown={deleteSection}
-            onClick={deleteSection}
-          >
-            Delete section
-          </button>
+          <div style={s.customTextReorderGroup}>
+            <span
+              style={s.customTextDragHandle}
+              title="Drag to reorder"
+              aria-label="Drag to reorder"
+              role="button"
+              tabIndex={0}
+              draggable
+              onDragStart={(e) => onDragStart?.(e, item.id)}
+              onDragEnd={onDragEnd}
+            >
+              ⋮⋮
+            </span>
+            <button
+              type="button"
+              style={s.customTextReorderBtn}
+              disabled={index === 0}
+              aria-label="Move section up"
+              onClick={() => onMove?.(item.id, -1)}
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              style={s.customTextReorderBtn}
+              disabled={index >= total - 1}
+              aria-label="Move section down"
+              onClick={() => onMove?.(item.id, 1)}
+            >
+              ↓
+            </button>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginLeft: "auto" }}>
+            <button
+              ref={btnRef}
+              type="button"
+              className="aa-btn"
+              style={{
+                ...s.sectionColorBtn,
+                position: "static",
+                top: "auto",
+                right: "auto",
+                ...(colorOpen ? s.sectionColorBtnActive : null),
+              }}
+              onClick={() => setColorOpen((o) => !o)}
+            >
+              Color
+            </button>
+            <button
+              type="button"
+              style={s.customTextDeleteBtn}
+              aria-label="Delete this text section"
+              title="Delete this text box"
+              onMouseDown={deleteSection}
+              onClick={deleteSection}
+            >
+              Delete section
+            </button>
+          </div>
         </div>
       )}
 
@@ -185,17 +244,18 @@ function CustomTextSectionBlock({ item, isAdmin, onUpdate, onRemove }) {
 }
 
 /**
- * Edit Mode: add / delete / recolor freeform text section boxes.
- * Fully controlled by `sections` + `onChange` so deletes persist cleanly.
+ * Edit Mode: add / delete / recolor / drag-reorder freeform text section boxes.
  */
 export function CustomTextSections({ isAdmin = false, sections = [], onChange, addLabel = "+ Add text section" }) {
   const list = Array.isArray(sections) ? sections : [];
   const listRef = useRef(list);
   const removedIdsRef = useRef(new Set());
+  const dragIdRef = useRef(null);
+  const [dragId, setDragId] = useState(null);
+  const [dropTargetId, setDropTargetId] = useState(null);
   const [, bump] = useState(0);
   listRef.current = list;
 
-  // Once parent no longer has a removed id, drop the guard.
   useEffect(() => {
     const liveIds = new Set(list.map((item) => item.id));
     let changed = false;
@@ -224,8 +284,72 @@ export function CustomTextSections({ isAdmin = false, sections = [], onChange, a
 
   const removeItem = (id) => {
     removedIdsRef.current.add(id);
-    bump((n) => n + 1); // hide the box immediately
+    bump((n) => n + 1);
     persist(listRef.current.filter((item) => item.id !== id));
+  };
+
+  const moveItem = (id, delta) => {
+    const current = listRef.current.filter((item) => !removedIdsRef.current.has(item.id));
+    const from = current.findIndex((item) => item.id === id);
+    if (from < 0) return;
+    const to = from + delta;
+    if (to < 0 || to >= current.length) return;
+    const next = current.slice();
+    const [row] = next.splice(from, 1);
+    next.splice(to, 0, row);
+    persist(next);
+  };
+
+  const reorderByIds = (fromId, toId) => {
+    if (!fromId || !toId || fromId === toId) return;
+    const current = listRef.current.filter((item) => !removedIdsRef.current.has(item.id));
+    const from = current.findIndex((item) => item.id === fromId);
+    const to = current.findIndex((item) => item.id === toId);
+    if (from < 0 || to < 0 || from === to) return;
+    const next = current.slice();
+    const [row] = next.splice(from, 1);
+    next.splice(to, 0, row);
+    persist(next);
+  };
+
+  const onDragStart = (e, id) => {
+    dragIdRef.current = id;
+    setDragId(id);
+    try {
+      e.dataTransfer.setData("text/plain", id);
+      e.dataTransfer.effectAllowed = "move";
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const onDragOver = (e, id) => {
+    e.preventDefault();
+    try {
+      e.dataTransfer.dropEffect = "move";
+    } catch {
+      /* ignore */
+    }
+    if (id !== dropTargetId) setDropTargetId(id);
+  };
+
+  const onDragLeave = (id) => {
+    if (dropTargetId === id) setDropTargetId(null);
+  };
+
+  const onDrop = (e, id) => {
+    e.preventDefault();
+    const fromId = dragIdRef.current || e.dataTransfer.getData("text/plain");
+    reorderByIds(fromId, id);
+    dragIdRef.current = null;
+    setDragId(null);
+    setDropTargetId(null);
+  };
+
+  const onDragEnd = () => {
+    dragIdRef.current = null;
+    setDragId(null);
+    setDropTargetId(null);
   };
 
   const addItem = () => {
@@ -234,7 +358,7 @@ export function CustomTextSections({ isAdmin = false, sections = [], onChange, a
       {
         id: sectionId(),
         heading: "New text section",
-        body: "Write your content here. Use Color to set background and text colors for this section.",
+        body: "Write your content here. Drag the ⋮⋮ handle to reorder. Use Delete section to remove this box.",
         bg: "",
         text: "",
       },
@@ -245,13 +369,28 @@ export function CustomTextSections({ isAdmin = false, sections = [], onChange, a
 
   return (
     <div style={s.customTextSectionsWrap}>
-      {visibleList.map((item) => (
+      {isAdmin && visibleList.length > 1 && (
+        <p style={s.customTextReorderHint}>
+          Drag boxes with ⋮⋮, or use ↑ ↓, to change order. Delete section removes a box completely.
+        </p>
+      )}
+      {visibleList.map((item, index) => (
         <CustomTextSectionBlock
           key={item.id}
           item={item}
+          index={index}
+          total={visibleList.length}
           isAdmin={isAdmin}
           onUpdate={updateItem}
           onRemove={removeItem}
+          onMove={moveItem}
+          dragId={dragId}
+          dropTargetId={dropTargetId}
+          onDragStart={onDragStart}
+          onDragOver={onDragOver}
+          onDragLeave={onDragLeave}
+          onDrop={onDrop}
+          onDragEnd={onDragEnd}
         />
       ))}
       {isAdmin && (
