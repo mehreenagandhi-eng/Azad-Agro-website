@@ -1,14 +1,24 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { s } from "../styles";
 import { Modal } from "./Modal";
 import { ImageCropper } from "./ImageCropper";
-import { Icon, ICON_KEYS } from "./Icon";
-import { persistPhoto, resolvePhotoSrc } from "../mediaStore";
+import { Icon, ICON_KEYS, ICON_LABELS } from "./Icon";
+import { persistPhoto, resolvePhotoSrc, isMediaRef } from "../mediaStore";
+
+function initialMode(product) {
+  return product?.image ? "photo" : "character";
+}
 
 export function ProductEditModal({ product, categories, onCancel, onSave }) {
-  const [form, setForm] = useState({ ...product });
+  const [form, setForm] = useState({
+    icon: "leaf",
+    image: "",
+    ...product,
+  });
+  const [mode, setMode] = useState(() => initialMode(product));
   const [cropSource, setCropSource] = useState(null);
   const [preview, setPreview] = useState("");
+  const [imageUrlDraft, setImageUrlDraft] = useState("");
   const fileRef = useRef(null);
 
   useEffect(() => {
@@ -29,22 +39,56 @@ export function ProductEditModal({ product, categories, onCancel, onSave }) {
   const onFile = (e) => {
     const file = e.target.files?.[0];
     e.target.value = "";
-    if (file) setCropSource(file);
+    if (file && file.type.startsWith("image/")) setCropSource(file);
   };
 
-  const handleSave = (e) => {
+  const chooseMode = (next) => {
+    setMode(next);
+    if (next === "character") {
+      // Keep any uploaded photo in memory until save only if they switch back;
+      // representation uses character when this mode is active.
+    }
+  };
+
+  const handleSave = async (e) => {
     e.preventDefault();
+    let image = form.image || "";
+    if (mode === "character") {
+      if (image) {
+        try {
+          await persistPhoto("", image);
+        } catch {
+          /* ignore */
+        }
+      }
+      image = "";
+    } else if (mode === "photo" && imageUrlDraft.trim() && !preview) {
+      image = imageUrlDraft.trim();
+    }
+
     onSave({
       ...form,
       name: form.name.trim(),
       cat: form.cat.trim(),
       unit: form.unit.trim(),
       price: Number(form.price) || 0,
-      note: form.note.trim(),
+      note: (form.note || "").trim(),
+      icon: form.icon || "leaf",
+      image,
     });
   };
 
-  const categoryOptions = Array.from(new Set([...(categories || []), form.cat].filter(Boolean)));
+  const categoryOptions = useMemo(
+    () => Array.from(new Set([...(categories || []), form.cat].filter(Boolean))),
+    [categories, form.cat]
+  );
+
+  const urlFieldValue = (() => {
+    if (imageUrlDraft) return imageUrlDraft;
+    const img = form.image || "";
+    if (!img || img.startsWith("data:") || isMediaRef(img)) return "";
+    return img;
+  })();
 
   return (
     <Modal title={product?.name ? "Edit product" : "Add product"} onClose={onCancel}>
@@ -111,107 +155,134 @@ export function ProductEditModal({ product, categories, onCancel, onSave }) {
         </div>
 
         <div style={s.formRow}>
-          <span style={s.label}>Icon (used when no photo)</span>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {ICON_KEYS.map((key) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => patch({ icon: key })}
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 10,
-                  border:
-                    form.icon === key
-                      ? "2px solid var(--accent)"
-                      : "1px solid var(--border)",
-                  background:
-                    form.icon === key
-                      ? "color-mix(in srgb, var(--accent) 12%, var(--paper))"
-                      : "var(--paper)",
-                  color: "var(--accent2)",
-                  cursor: "pointer",
-                  display: "grid",
-                  placeItems: "center",
-                }}
-                aria-label={`Select ${key} icon`}
-                aria-pressed={form.icon === key}
-              >
-                <Icon name={key} size={28} />
-              </button>
-            ))}
+          <span style={s.label}>How should this plant look?</span>
+          <p style={{ margin: "0 0 10px", fontSize: 13, color: "var(--muted)", lineHeight: 1.45 }}>
+            Upload a photo of the plant/product, or pick a character icon to represent it.
+          </p>
+          <div style={s.visualModeRow} role="radiogroup" aria-label="Product look">
+            <button
+              type="button"
+              role="radio"
+              aria-checked={mode === "photo"}
+              style={{
+                ...s.visualModeBtn,
+                ...(mode === "photo" ? s.visualModeBtnActive : null),
+              }}
+              onClick={() => chooseMode("photo")}
+            >
+              Photo
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={mode === "character"}
+              style={{
+                ...s.visualModeBtn,
+                ...(mode === "character" ? s.visualModeBtnActive : null),
+              }}
+              onClick={() => chooseMode("character")}
+            >
+              Character
+            </button>
           </div>
         </div>
 
-        <div style={s.formRow}>
-          <span style={s.label}>Product image</span>
-          {preview ? (
-            <img
-              src={preview}
-              alt=""
-              style={{
-                width: "100%",
-                maxWidth: 200,
-                aspectRatio: "6 / 7",
-                objectFit: "cover",
-                borderRadius: 12,
-                border: "1px solid var(--border)",
-                display: "block",
-                marginBottom: 10,
+        {mode === "photo" ? (
+          <div style={s.formRow}>
+            <span style={s.label}>Product photo</span>
+            {preview ? (
+              <img
+                src={preview}
+                alt=""
+                style={{
+                  width: "100%",
+                  maxWidth: 200,
+                  aspectRatio: "6 / 7",
+                  objectFit: "cover",
+                  borderRadius: 12,
+                  border: "1px solid var(--border)",
+                  display: "block",
+                  marginBottom: 10,
+                }}
+              />
+            ) : (
+              <div style={s.visualEmptyPreview}>
+                <Icon name={form.icon || "leaf"} size={48} />
+                <span>No photo yet</span>
+              </div>
+            )}
+
+            <div style={s.uploadRow}>
+              <input ref={fileRef} type="file" accept="image/*" hidden onChange={onFile} />
+              <button type="button" style={s.uploadBtn} onClick={openPicker}>
+                {preview ? "Replace photo" : "Upload photo"}
+              </button>
+              {preview && (
+                <button
+                  type="button"
+                  style={s.removePhotoBtn}
+                  onClick={async () => {
+                    await persistPhoto("", form.image);
+                    patch({ image: "" });
+                    setImageUrlDraft("");
+                  }}
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+
+            <div style={s.orDivider}>
+              <span style={{ height: 1, background: "var(--border)" }} />
+              <span>or</span>
+              <span style={{ height: 1, background: "var(--border)" }} />
+            </div>
+
+            <input
+              style={s.input}
+              placeholder="Paste photo URL"
+              value={urlFieldValue}
+              onChange={(e) => {
+                const v = e.target.value;
+                setImageUrlDraft(v);
+                patch({ image: v });
               }}
             />
-          ) : (
-            <div
-              style={{
-                width: "100%",
-                maxWidth: 200,
-                aspectRatio: "6 / 7",
-                borderRadius: 12,
-                border: "1px dashed var(--border)",
-                display: "grid",
-                placeItems: "center",
-                color: "var(--muted)",
-                fontSize: 13,
-                marginBottom: 10,
-              }}
-            >
-              <Icon name={form.icon || "leaf"} size={48} />
+          </div>
+        ) : (
+          <div style={s.formRow}>
+            <span style={s.label}>Plant character</span>
+            <p style={{ margin: "0 0 10px", fontSize: 13, color: "var(--muted)", lineHeight: 1.45 }}>
+              Choose a character that represents this plant. It shows on the product card when you
+              don’t use a photo.
+            </p>
+            <div style={s.characterPreview}>
+              <Icon name={form.icon || "leaf"} size={72} />
+              <span style={s.characterPreviewLabel}>
+                {ICON_LABELS[form.icon] || form.icon || "Leaf"}
+              </span>
             </div>
-          )}
-
-          <div style={s.uploadRow}>
-            <input ref={fileRef} type="file" accept="image/*" hidden onChange={onFile} />
-            <button type="button" style={s.uploadBtn} onClick={openPicker}>
-              {preview ? "Replace image" : "Upload image"}
-            </button>
-            {preview && (
-              <button
-                type="button"
-                style={s.removePhotoBtn}
-                onClick={async () => {
-                  await persistPhoto("", form.image);
-                  patch({ image: "" });
-                }}
-              >
-                Remove
-              </button>
-            )}
+            <div style={s.characterGrid}>
+              {ICON_KEYS.map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => patch({ icon: key })}
+                  style={{
+                    ...s.characterPick,
+                    ...(form.icon === key ? s.characterPickActive : null),
+                  }}
+                  aria-label={`Select ${ICON_LABELS[key] || key} character`}
+                  aria-pressed={form.icon === key}
+                  title={ICON_LABELS[key] || key}
+                >
+                  <Icon name={key} size={30} />
+                  <span style={s.characterPickLabel}>{ICON_LABELS[key] || key}</span>
+                </button>
+              ))}
+            </div>
           </div>
-
-          <div style={s.orDivider}>
-            <span style={{ height: 1, background: "var(--border)" }} />
-            <span>or</span>
-            <span style={{ height: 1, background: "var(--border)" }} />
-          </div>
-
-          <input
-            style={s.input}
-            placeholder="Paste image URL"
-            value={form.image?.startsWith("data:") ? "" : form.image || ""}
-            onChange={(e) => patch({ image: e.target.value })}
-          />
-        </div>
+        )}
 
         <div style={s.formRow}>
           <label style={s.label} htmlFor="product-note">
@@ -221,12 +292,14 @@ export function ProductEditModal({ product, categories, onCancel, onSave }) {
             id="product-note"
             style={s.input}
             placeholder="e.g. Rain-fed, hand-winnowed"
-            value={form.note}
+            value={form.note || ""}
             onChange={(e) => patch({ note: e.target.value })}
           />
         </div>
 
-        <label style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, cursor: "pointer" }}>
+        <label
+          style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, cursor: "pointer" }}
+        >
           <input
             type="checkbox"
             checked={Boolean(form.featured)}
@@ -246,7 +319,7 @@ export function ProductEditModal({ product, categories, onCancel, onSave }) {
       </form>
 
       {cropSource && (
-        <Modal title="Crop product image" onClose={() => setCropSource(null)}>
+        <Modal title="Crop product photo" onClose={() => setCropSource(null)}>
           <ImageCropper
             source={cropSource}
             aspect={6 / 7}
@@ -254,6 +327,8 @@ export function ProductEditModal({ product, categories, onCancel, onSave }) {
             onComplete={async (dataUrl) => {
               const ref = await persistPhoto(dataUrl, form.image);
               patch({ image: ref });
+              setImageUrlDraft("");
+              setMode("photo");
               setCropSource(null);
             }}
           />

@@ -197,11 +197,16 @@ export function rupee(n) {
 
 export function categoryIcon(cat = "") {
   const c = cat.toLowerCase();
-  if (c.includes("grain")) return "grain";
-  if (c.includes("spice") || c.includes("chilli") || c.includes("turmeric")) return "root";
-  if (c.includes("oil") || c.includes("ghee") || c.includes("honey")) return "drop";
+  if (c.includes("grain") || c.includes("rice") || c.includes("wheat")) return "wheat";
+  if (c.includes("chilli")) return "chilli";
+  if (c.includes("spice") || c.includes("turmeric")) return "root";
+  if (c.includes("honey")) return "comb";
+  if (c.includes("oil") || c.includes("ghee")) return "drop";
   if (c.includes("pulse") || c.includes("dal") || c.includes("lentil")) return "pod";
   if (c.includes("sweet") || c.includes("jaggery")) return "seed";
   if (c.includes("preserve") || c.includes("pickle") || c.includes("murabba")) return "jar";
-  return "leaf";
+  if (c.includes("herb") || c.includes("tea")) return "herb";
+  if (c.includes("fruit") || c.includes("citrus")) return "citrus";
+  if (c.includes("flower")) return "flower";
+  return "plant";
 }

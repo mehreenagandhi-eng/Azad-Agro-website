@@ -1191,6 +1191,109 @@ export const s = {
     overflow: "hidden",
   },
 
+  cardCharacterStage: {
+    width: 88,
+    height: 88,
+    borderRadius: 18,
+    display: "grid",
+    placeItems: "center",
+    border: "1px solid color-mix(in srgb, var(--accent2) 22%, var(--border))",
+    background:
+      "radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--accent) 18%, var(--paper)), color-mix(in srgb, var(--accent2) 10%, var(--paper)))",
+    color: "var(--accent2)",
+    overflow: "hidden",
+  },
+
+  visualModeRow: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: 8,
+    marginBottom: 4,
+  },
+
+  visualModeBtn: {
+    border: "1px solid var(--border)",
+    borderRadius: 12,
+    padding: "12px 10px",
+    background: "var(--paper)",
+    color: "var(--muted)",
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: "pointer",
+  },
+
+  visualModeBtnActive: {
+    border: "1px solid color-mix(in srgb, var(--accent2) 45%, var(--border))",
+    background: "color-mix(in srgb, var(--accent2) 12%, var(--paper))",
+    color: "var(--ink)",
+    boxShadow: "inset 0 0 0 1px color-mix(in srgb, var(--accent2) 18%, transparent)",
+  },
+
+  visualEmptyPreview: {
+    width: "100%",
+    maxWidth: 200,
+    aspectRatio: "6 / 7",
+    borderRadius: 12,
+    border: "1px dashed var(--border)",
+    display: "grid",
+    placeItems: "center",
+    alignContent: "center",
+    gap: 8,
+    color: "var(--muted)",
+    fontSize: 13,
+    marginBottom: 10,
+  },
+
+  characterPreview: {
+    display: "flex",
+    alignItems: "center",
+    gap: 14,
+    marginBottom: 12,
+    padding: "12px 14px",
+    borderRadius: 14,
+    border: "1px solid var(--border)",
+    background:
+      "radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--accent) 16%, var(--paper)), var(--paper))",
+    color: "var(--accent2)",
+  },
+
+  characterPreviewLabel: {
+    fontSize: 15,
+    fontWeight: 700,
+    color: "var(--ink)",
+  },
+
+  characterGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(76px, 1fr))",
+    gap: 8,
+  },
+
+  characterPick: {
+    display: "grid",
+    justifyItems: "center",
+    gap: 4,
+    padding: "10px 6px 8px",
+    borderRadius: 12,
+    border: "1px solid var(--border)",
+    background: "var(--paper)",
+    color: "var(--accent2)",
+    cursor: "pointer",
+  },
+
+  characterPickActive: {
+    border: "2px solid var(--accent2)",
+    background: "color-mix(in srgb, var(--accent2) 12%, var(--paper))",
+    color: "var(--ink)",
+  },
+
+  characterPickLabel: {
+    fontSize: 10,
+    fontWeight: 600,
+    color: "var(--muted)",
+    textTransform: "capitalize",
+  },
+
   cardWithBg: {
     position: "relative",
     minHeight: 260,

@@ -91,8 +91,8 @@ export function ProductCard({
     <article style={s.card}>
       {ribbon && <span style={s.cardRibbon}>{ribbon}</span>}
       {adminBar}
-      <div style={{ width: 64, height: 64, borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)" }}>
-        <ProductVisual p={p} size={64} />
+      <div style={s.cardCharacterStage} aria-hidden="true">
+        <ProductVisual p={p} size={72} style={{ color: "var(--accent2)" }} />
       </div>
       <span style={s.cardTag}>{p.cat}</span>
       <h3 style={s.cardName}>{p.name}</h3>
