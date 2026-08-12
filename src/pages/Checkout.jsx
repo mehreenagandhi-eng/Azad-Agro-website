@@ -5,25 +5,12 @@ import { SectionColorControl } from "../components/SectionColorControl";
 import { ResolvedImage } from "../components/ResolvedImage";
 import { SectionPhoto } from "../components/SectionPhoto";
 import { rupee } from "../data/defaults";
+import { buildUpiPayUrl, qrImageUrl } from "../utils/upi";
 
 const FREE_DELIVERY_THRESHOLD = 999;
 
 function lineTotal(item) {
   return (item.price || 0) * (item.qty || 0);
-}
-
-function buildUpiPayUrl({ upiId, payeeName, amount, note }) {
-  const params = new URLSearchParams();
-  params.set("pa", upiId);
-  if (payeeName) params.set("pn", payeeName);
-  if (amount != null && Number(amount) > 0) params.set("am", Number(amount).toFixed(2));
-  params.set("cu", "INR");
-  if (note) params.set("tn", String(note).slice(0, 80));
-  return `upi://pay?${params.toString()}`;
-}
-
-function qrImageUrl(data) {
-  return `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(data)}`;
 }
 
 export function Confirmation({ order, marketplace, onContinue }) {

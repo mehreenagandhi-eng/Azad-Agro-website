@@ -420,6 +420,101 @@ export const s = {
     boxShadow: "0 10px 30px color-mix(in srgb, var(--ink) 6%, transparent)",
   },
 
+  upiSetupWrap: {
+    display: "grid",
+    gap: 4,
+  },
+
+  upiStepsList: {
+    margin: "0 0 18px",
+    padding: 0,
+    listStyle: "none",
+    display: "grid",
+    gap: 10,
+  },
+
+  upiStepItem: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: 10,
+    fontSize: 14,
+    lineHeight: 1.5,
+    color: "var(--contact-text, var(--ink))",
+  },
+
+  upiStepNum: {
+    flex: "0 0 auto",
+    width: 26,
+    height: 26,
+    borderRadius: 8,
+    display: "inline-grid",
+    placeItems: "center",
+    fontSize: 12,
+    fontWeight: 700,
+    fontFamily: "var(--font-mono)",
+    color: "var(--ink)",
+    background: "color-mix(in srgb, var(--accent2) 16%, var(--paper))",
+    border: "1px solid color-mix(in srgb, var(--accent2) 28%, var(--border))",
+  },
+
+  upiSetupActions: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 14,
+  },
+
+  upiSetupPreviewRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 16,
+    marginBottom: 8,
+  },
+
+  upiSetupPreview: {
+    display: "grid",
+    gap: 8,
+    justifyItems: "start",
+  },
+
+  upiSetupPreviewLabel: {
+    fontSize: 12,
+    fontWeight: 600,
+    color: "var(--muted)",
+  },
+
+  upiSetupStatus: {
+    margin: "8px 0 0",
+    fontSize: 13,
+    lineHeight: 1.45,
+    color: "var(--accent2)",
+  },
+
+  upiCatalogBanner: {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    margin: "0 0 18px",
+    padding: "14px 16px",
+    borderRadius: 14,
+    border: "1px solid color-mix(in srgb, var(--accent2) 30%, var(--border))",
+    background: "color-mix(in srgb, var(--paper) 88%, var(--accent2) 12%)",
+  },
+
+  upiCatalogBannerBtn: {
+    border: "none",
+    borderRadius: 10,
+    padding: "10px 14px",
+    fontSize: 13,
+    fontWeight: 700,
+    cursor: "pointer",
+    background: "var(--accent2)",
+    color: "var(--paper)",
+    whiteSpace: "nowrap",
+  },
+
   adminBadge: {
     display: "inline-flex",
     alignItems: "center",
