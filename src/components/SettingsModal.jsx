@@ -347,6 +347,12 @@ function BackupPanel({ onExportEdits, onImportEdits }) {
   const fileRef = useRef(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [paste, setPaste] = useState("");
+
+  const applyPayload = (data) => {
+    onImportEdits?.(data);
+    setMessage("Restored. Refresh the page if you don’t see your writing and colors yet.");
+  };
 
   const exportEdits = () => {
     setError("");
@@ -374,21 +380,42 @@ function BackupPanel({ onExportEdits, onImportEdits }) {
     if (!file) return;
     try {
       const text = await file.text();
-      const data = JSON.parse(text);
-      onImportEdits?.(data);
-      setMessage("Backup imported. Your text and theme edits should be back — refresh if needed.");
+      applyPayload(JSON.parse(text));
     } catch (err) {
       setError(err?.message || "Import failed — choose a valid backup JSON file.");
+    }
+  };
+
+  const importPasted = () => {
+    setError("");
+    setMessage("");
+    try {
+      const raw = paste.trim();
+      if (!raw) throw new Error("Paste your backup JSON first.");
+      const data = JSON.parse(raw);
+      // Allow either full backup or raw site-config / theme pieces from DevTools
+      if (data.site || data.theme || data.manufacturers) {
+        applyPayload(data);
+      } else if (data.title || data.heroLine1 || data.customTextSections) {
+        applyPayload({ site: data });
+      } else if (data.colors || data.fonts || data.sections) {
+        applyPayload({ theme: data });
+      } else {
+        throw new Error("That JSON doesn’t look like a site/theme backup.");
+      }
+      setPaste("");
+    } catch (err) {
+      setError(err?.message || "Could not read pasted JSON.");
     }
   };
 
   return (
     <div>
       <p style={{ margin: "0 0 14px", color: "var(--muted)", fontSize: 14, lineHeight: 1.6 }}>
-        Edits already auto-save on this link when you close the tab. Download a backup file too, so
-        you can restore your writing if the preview link ever changes.
+        Preview links expire, so writing is stored in your browser for each link. Use Backup to move
+        your text and colors to a new link.
       </p>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 12 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 16 }}>
         <button type="button" className="aa-btn" style={s.addProductBtn} onClick={exportEdits}>
           Download backup
         </button>
@@ -398,7 +425,7 @@ function BackupPanel({ onExportEdits, onImportEdits }) {
           style={s.uploadBtn}
           onClick={() => fileRef.current?.click()}
         >
-          Import backup
+          Import backup file
         </button>
         <input
           ref={fileRef}
@@ -412,8 +439,37 @@ function BackupPanel({ onExportEdits, onImportEdits }) {
           }}
         />
       </div>
-      {message ? <p style={{ margin: 0, color: "var(--accent)", fontSize: 13 }}>{message}</p> : null}
-      {error ? <p style={{ margin: 0, color: "var(--danger)", fontSize: 13 }}>{error}</p> : null}
+      <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+        Or paste backup JSON
+      </label>
+      <textarea
+        value={paste}
+        onChange={(e) => setPaste(e.target.value)}
+        rows={6}
+        placeholder='Paste JSON from a backup file or from Chrome DevTools (site-config-v2 / theme-v2 values)'
+        style={{
+          width: "100%",
+          boxSizing: "border-box",
+          borderRadius: 10,
+          border: "1px solid var(--border)",
+          background: "var(--paper)",
+          color: "var(--ink)",
+          padding: 10,
+          fontFamily: "var(--font-mono)",
+          fontSize: 12,
+          lineHeight: 1.45,
+          marginBottom: 10,
+        }}
+      />
+      <button type="button" className="aa-btn" style={s.uploadBtn} onClick={importPasted}>
+        Restore pasted JSON
+      </button>
+      {message ? (
+        <p style={{ margin: "12px 0 0", color: "var(--accent)", fontSize: 13 }}>{message}</p>
+      ) : null}
+      {error ? (
+        <p style={{ margin: "12px 0 0", color: "var(--danger)", fontSize: 13 }}>{error}</p>
+      ) : null}
     </div>
   );
 }
