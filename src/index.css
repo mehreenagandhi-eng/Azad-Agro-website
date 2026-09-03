@@ -1,0 +1,52 @@
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: #1c2a22;
+  color: #f3eee4;
+}
+
+@keyframes aa-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes aa-soft-glow {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
+.aa-hero-copy {
+  animation: aa-fade-up 0.7s ease both;
+}
+
+.aa-hero-visual {
+  animation: aa-fade-up 0.85s 0.12s ease both;
+}
+
+.aa-hero-atmosphere {
+  animation: aa-soft-glow 8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aa-hero-copy,
+  .aa-hero-visual,
+  .aa-hero-atmosphere {
+    animation: none !important;
+  }
+}
