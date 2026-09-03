@@ -16,6 +16,7 @@ import { SettingsModal } from "./components/SettingsModal";
 import { ProductEditModal } from "./components/ProductEditModal";
 import { ManufacturerEditModal } from "./components/ManufacturerEditModal";
 import { OwnerLoginModal } from "./components/OwnerLoginModal";
+import { VoiceAssistant } from "./components/VoiceAssistant";
 import { MarketplaceHome } from "./pages/MarketplaceHome";
 import { ManufacturerDirectory } from "./pages/ManufacturerDirectory";
 import { MissionPage } from "./pages/MissionPage";
@@ -94,6 +95,8 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
   const [savedFlash, setSavedFlash] = useState("");
   const [editingProduct, setEditingProduct] = useState(null);
   const [editingManufacturer, setEditingManufacturer] = useState(null);
+  const [voiceRole, setVoiceRole] = useState("farmer");
+  const [voiceOpen, setVoiceOpen] = useState(false);
   const resolvedHeaderLogo = useResolvedPhoto(site.headerLogo || "");
 
   const siteRef = React.useRef(site);
@@ -513,6 +516,66 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
     }
   }
 
+  function applyVoiceActions(actions) {
+    for (const action of actions || []) {
+      if (!action?.type) continue;
+      if (action.type === "ensureEditMode") {
+        setIsAdmin(true);
+        continue;
+      }
+      if (action.type === "openManufacturer" && action.manufacturerId) {
+        goToManufacturer(action.manufacturerId);
+        continue;
+      }
+      if (action.type === "openCart") {
+        setCartOpen(true);
+        continue;
+      }
+      if (action.type === "openCheckout") {
+        setCartOpen(false);
+        setView("checkout");
+        continue;
+      }
+      if (action.type === "setCategoryFilter" && action.category) {
+        setMfgTab("order");
+        flash(`Showing ${action.category}`);
+        continue;
+      }
+      if (action.type === "addToCart" && action.manufacturerId && action.productId) {
+        addToCart(action.manufacturerId, action.productId);
+        setCartOpen(true);
+        continue;
+      }
+      if (action.type === "upsertProduct" && action.manufacturerId && action.product) {
+        const m = manufacturersRef.current.find((x) => x.id === action.manufacturerId);
+        if (!m) continue;
+        const exists = (m.products || []).some((p) => p.id === action.product.id);
+        const nextProducts = exists
+          ? m.products.map((p) => (p.id === action.product.id ? { ...p, ...action.product } : p))
+          : [...(m.products || []), action.product];
+        saveManufacturer(action.manufacturerId, { products: nextProducts });
+        if (activeManufacturerId !== action.manufacturerId) {
+          goToManufacturer(action.manufacturerId);
+        } else {
+          setMfgTab("order");
+        }
+        continue;
+      }
+      if (action.type === "deleteProduct" && action.manufacturerId && action.productId) {
+        const m = manufacturersRef.current.find((x) => x.id === action.manufacturerId);
+        if (!m) continue;
+        saveManufacturer(action.manufacturerId, {
+          products: (m.products || []).filter((p) => p.id !== action.productId),
+        });
+        if (activeManufacturerId !== action.manufacturerId) {
+          goToManufacturer(action.manufacturerId);
+        } else {
+          setMfgTab("order");
+        }
+      }
+    }
+  }
+
   function saveManufacturerEntry(m) {
     const exists = manufacturers.some((x) => x.id === m.id);
     const next = exists
@@ -682,6 +745,10 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
         input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
         input[type="color"]::-webkit-color-swatch { border: 1px solid var(--border); border-radius: 8px; }
         @media (prefers-reduced-motion: reduce) { .aa-btn, .aa-card { transition: none !important; } }
+        @keyframes aa-pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.04); }
+        }
         @media (max-width: 760px) {
           .aa-checkout-grid { grid-template-columns: 1fr !important; }
           .aa-form-row { grid-template-columns: 1fr !important; }
@@ -1224,6 +1291,7 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
                     image: "",
                     note: "",
                     featured: false,
+                    stock: 0,
                   }
                 : editingProduct
             }
@@ -1339,6 +1407,21 @@ export default function AzadAgroStore({ clerkEnabled = false }) {
             />
           </div>
         </SectionColorAnchor>
+
+        <VoiceAssistant
+          role={voiceRole}
+          onRoleChange={setVoiceRole}
+          open={voiceOpen}
+          onOpenChange={setVoiceOpen}
+          context={{
+            manufacturers,
+            activeManufacturer,
+            cartItems: items,
+          }}
+          onActions={async (actions) => {
+            applyVoiceActions(actions);
+          }}
+        />
       </div>
       </ThemeEditProvider>
     </TextStyleContext.Provider>

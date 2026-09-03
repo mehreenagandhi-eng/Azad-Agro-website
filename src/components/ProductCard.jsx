@@ -97,6 +97,9 @@ export function ProductCard({
       <span style={s.cardTag}>{p.cat}</span>
       <h3 style={s.cardName}>{p.name}</h3>
       {p.note && <p style={s.cardNote}>{p.note}</p>}
+      {p.stock != null && p.stock !== "" && (
+        <p style={{ ...s.cardNote, marginTop: -2 }}>Stock: {p.stock}</p>
+      )}
       {foot}
     </article>
   );

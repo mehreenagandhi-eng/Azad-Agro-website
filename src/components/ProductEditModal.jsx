@@ -75,6 +75,10 @@ export function ProductEditModal({ product, categories, onCancel, onSave }) {
       note: (form.note || "").trim(),
       icon: form.icon || "leaf",
       image,
+      stock:
+        form.stock === "" || form.stock == null || Number.isNaN(Number(form.stock))
+          ? undefined
+          : Number(form.stock),
     });
   };
 
@@ -125,7 +129,7 @@ export function ProductEditModal({ product, categories, onCancel, onSave }) {
           </datalist>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
           <div style={s.formRow}>
             <label style={s.label} htmlFor="product-unit">
               Unit
@@ -150,6 +154,25 @@ export function ProductEditModal({ product, categories, onCancel, onSave }) {
               style={s.input}
               value={form.price}
               onChange={(e) => patch({ price: e.target.value })}
+            />
+          </div>
+          <div style={s.formRow}>
+            <label style={s.label} htmlFor="product-stock">
+              Stock
+            </label>
+            <input
+              id="product-stock"
+              type="number"
+              min="0"
+              step="1"
+              style={s.input}
+              value={form.stock ?? ""}
+              onChange={(e) =>
+                patch({
+                  stock: e.target.value === "" ? "" : Number(e.target.value),
+                })
+              }
+              placeholder="e.g. 40"
             />
           </div>
         </div>

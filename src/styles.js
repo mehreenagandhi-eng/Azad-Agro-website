@@ -2598,4 +2598,221 @@ export const s = {
     textAlign: "center",
     background: "color-mix(in srgb, var(--ink) 3%, var(--paper))",
   },
+
+  voiceFab: {
+    position: "fixed",
+    right: 18,
+    bottom: 18,
+    zIndex: 240,
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 8,
+    border: "1px solid color-mix(in srgb, var(--accent2) 35%, var(--border))",
+    background: "var(--ink)",
+    color: "var(--paper)",
+    borderRadius: 999,
+    padding: "12px 16px",
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: "pointer",
+    boxShadow: "0 14px 34px color-mix(in srgb, var(--ink) 28%, transparent)",
+  },
+
+  voiceFabListening: {
+    background: "var(--accent2)",
+    animation: "aa-pulse 1.2s ease-in-out infinite",
+  },
+
+  voiceFabOpen: {
+    boxShadow: "0 16px 40px color-mix(in srgb, var(--accent2) 28%, transparent)",
+  },
+
+  voiceFabLabel: {
+    fontSize: 13,
+    letterSpacing: "0.01em",
+  },
+
+  voicePanel: {
+    position: "fixed",
+    right: 18,
+    bottom: 78,
+    zIndex: 241,
+    width: "min(380px, calc(100vw - 24px))",
+    maxHeight: "min(78vh, 640px)",
+    overflow: "auto",
+    borderRadius: 18,
+    border: "1px solid var(--border)",
+    background: "color-mix(in srgb, var(--paper) 96%, var(--accent) 4%)",
+    boxShadow: "0 22px 50px color-mix(in srgb, var(--ink) 22%, transparent)",
+    padding: 14,
+  },
+
+  voicePanelHead: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: 10,
+    marginBottom: 12,
+  },
+
+  voicePanelTitle: {
+    fontFamily: "var(--font-display)",
+    fontSize: "1.15rem",
+    fontWeight: 600,
+    color: "var(--ink)",
+  },
+
+  voicePanelSub: {
+    marginTop: 4,
+    fontSize: 12,
+    lineHeight: 1.45,
+    color: "var(--muted)",
+  },
+
+  voiceRoleRow: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: 8,
+    marginBottom: 12,
+  },
+
+  voiceRoleBtn: {
+    border: "1px solid var(--border)",
+    borderRadius: 12,
+    padding: "10px 8px",
+    background: "var(--paper)",
+    color: "var(--muted)",
+    fontSize: 13,
+    fontWeight: 700,
+    cursor: "pointer",
+  },
+
+  voiceRoleBtnActive: {
+    border: "1px solid color-mix(in srgb, var(--accent2) 40%, var(--border))",
+    background: "color-mix(in srgb, var(--accent2) 12%, var(--paper))",
+    color: "var(--ink)",
+  },
+
+  voiceMicRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 10,
+  },
+
+  voiceMicBtn: {
+    flex: "1 1 180px",
+    border: "none",
+    borderRadius: 12,
+    padding: "12px 14px",
+    background: "var(--accent2)",
+    color: "var(--paper)",
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: "pointer",
+  },
+
+  voiceMicBtnActive: {
+    background: "color-mix(in srgb, var(--accent2) 70%, #b00020)",
+  },
+
+  voiceToggle: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 6,
+    fontSize: 12,
+    color: "var(--muted)",
+    cursor: "pointer",
+  },
+
+  voiceError: {
+    margin: "0 0 10px",
+    fontSize: 12,
+    color: "#9b2c2c",
+    lineHeight: 1.4,
+  },
+
+  voiceTranscriptBox: {
+    borderRadius: 14,
+    border: "1px solid var(--border)",
+    background: "var(--paper)",
+    padding: "12px 12px 14px",
+    marginBottom: 10,
+  },
+
+  voiceMeta: {
+    fontSize: 11,
+    fontWeight: 700,
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
+    color: "var(--muted)",
+  },
+
+  voiceTranscript: {
+    margin: "4px 0 0",
+    fontSize: 14,
+    color: "var(--ink)",
+    lineHeight: 1.45,
+  },
+
+  voiceReply: {
+    margin: "4px 0 0",
+    fontSize: 14,
+    color: "var(--accent2)",
+    lineHeight: 1.5,
+    fontWeight: 600,
+  },
+
+  voiceTypeRow: {
+    display: "grid",
+    gridTemplateColumns: "1fr auto",
+    gap: 8,
+    marginBottom: 12,
+  },
+
+  voiceSendBtn: {
+    border: "none",
+    borderRadius: 10,
+    padding: "0 14px",
+    background: "var(--ink)",
+    color: "var(--paper)",
+    fontWeight: 700,
+    cursor: "pointer",
+  },
+
+  voiceHints: {
+    marginBottom: 8,
+  },
+
+  voiceHintChips: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 6,
+    marginTop: 6,
+  },
+
+  voiceHintChip: {
+    border: "1px solid var(--border)",
+    borderRadius: 999,
+    padding: "6px 10px",
+    background: "color-mix(in srgb, var(--paper) 90%, var(--accent) 10%)",
+    color: "var(--ink)",
+    fontSize: 11,
+    cursor: "pointer",
+    textAlign: "left",
+  },
+
+  voiceLog: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTop: "1px dashed var(--border)",
+  },
+
+  voiceLogLine: {
+    margin: "0 0 6px",
+    fontSize: 12,
+    lineHeight: 1.4,
+    color: "var(--muted)",
+  },
 };
